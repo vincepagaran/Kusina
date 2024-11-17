@@ -55,7 +55,7 @@ function login() {
               
               <!-- Login Button -->
               <v-btn
-                class="mb-8"
+                class="mb-8 login-btn"
                 color="blue"
                 size="large"
                 variant="tonal"
@@ -68,7 +68,7 @@ function login() {
               <!-- Register Link -->
               <p class="register">
                 Don't have an account? 
-                <router-link to="/register">Sign Up</router-link>
+                <router-link to="/register" class="signup-link">Sign Up</router-link>
               </p>
             </div>
           </v-col>
@@ -100,7 +100,7 @@ function login() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/public/pics/bg2.jpg'); 
+  background-image: url('public/pics/bg1.webp'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -133,14 +133,25 @@ function login() {
   font-size: 15px;
 }
 
-.login a {
-  color: #213032;
+/* Sign Up Link */
+.signup-link {
+  color: rgb(69, 100, 228); /* Same color as the login button */
   text-decoration: none;
   font-weight: 500;
 }
 
-.login a:hover {
+.signup-link:hover {
   text-decoration: underline;
-  color: #e74c3c;
+  color: #e74c3c; /* Maroon/Dark Red color on hover (same as login button hover) */
 }
+
+/* Login Button */
+.login-btn {
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #e74c3c; /* Maroon/Dark Red color on hover */
+}
+
 </style>
