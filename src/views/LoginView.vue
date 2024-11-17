@@ -4,21 +4,15 @@ import { useRouter } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('')
 const visible = ref(false) // For password visibility
-const visibleConfirm = ref(false) // For confirm password visibility
 const router = useRouter()
 
-function register() {
-  if (email.value && password.value && confirmPassword.value) {
-    if (password.value === confirmPassword.value) {
-      console.log('Registering with:', email.value, password.value)
-      
-      // Simulate registration success and redirect to the login page
-      router.push('/login')
-    } else {
-      alert('Passwords do not match.')
-    }
+function login() {
+  if (email.value && password.value) {
+    console.log('Logging in with:', email.value, password.value)
+    
+    // Simulate login success and redirect to the dashboard or another page
+    router.push('/dashboard') // Change to the appropriate route
   } else {
     alert('Please fill out all fields.')
   }
@@ -29,14 +23,14 @@ function register() {
   <v-app>
     <v-main>
       <v-container fluid class="d-flex justify-center align-center fill-height">
-        <!-- Registration Form -->
+        <!-- Login Form -->
         <v-row class="d-flex justify-center">
           <v-col cols="12" sm="8" md="6" lg="4">
-            <div class="registerform">
+            <div class="loginform">
               <!-- Logo -->
               <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
               
-              <h1 class="logintitle">Register</h1>
+              <h1 class="logintitle">Login</h1>
               
               <!-- Email Input -->
               <v-text-field
@@ -58,35 +52,23 @@ function register() {
                 variant="outlined"
                 @click:append-inner="visible = !visible"
               />
-
-              <!-- Confirm Password Input with Visibility Toggle -->
-              <v-text-field
-                v-model="confirmPassword"
-                :append-inner-icon="visibleConfirm ? 'mdi-eye-off' : 'mdi-eye'"
-                :type="visibleConfirm ? 'text' : 'password'"
-                prepend-inner-icon="mdi-lock-outline"
-                placeholder="Confirm Password"
-                density="compact"
-                variant="outlined"
-                @click:append-inner="visibleConfirm = !visibleConfirm"
-              />
               
-              <!-- Register Button -->
+              <!-- Login Button -->
               <v-btn
                 class="mb-8"
                 color="blue"
                 size="large"
                 variant="tonal"
                 block
-                @click="register"
+                @click="login"
               >
-                Register
+                Login
               </v-btn>
 
-              <!-- Login Link -->
+              <!-- Register Link -->
               <p class="register">
-                Already have an account? 
-                <router-link to="/login">Log In</router-link>
+                Don't have an account? 
+                <router-link to="/register">Sign Up</router-link>
               </p>
             </div>
           </v-col>
@@ -128,7 +110,7 @@ function register() {
   min-height: 100vh;
 }
 
-.registerform {
+.loginform {
   background: rgba(64, 64, 64, 0.15);
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 16px;
@@ -146,72 +128,18 @@ function register() {
   margin-bottom: 20px;
 }
 
-.registerinput {
-  margin: 15px 0;
-  position: relative;
-}
-
-.registerinput input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  padding: 12px 12px 12px 45px;
-  border-radius: 99px;
-  outline: 3px solid transparent;
-  transition: 0.3s;
-  font-size: 16px;
-  color: white;
-  font-weight: 600;
-}
-
-.registerinput input::placeholder {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.registerinput input:focus {
-  outline: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.registerinput i {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.registerbtn {
-  width: 100%;
-  padding: 10px 0;
-  background: #213032;
-  border: none;
-  border-radius: 99px;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.registerbtn:hover {
-  background: #e74c3c;
-}
-
-.register {
+.login {
   margin-top: 15px;
   font-size: 15px;
 }
 
-.register a {
+.login a {
   color: #213032;
   text-decoration: none;
   font-weight: 500;
 }
 
-.register a:hover {
+.login a:hover {
   text-decoration: underline;
   color: #e74c3c;
 }
