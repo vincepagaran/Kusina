@@ -1,3 +1,4 @@
+import DashView from '@/views/auth/DashView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -15,6 +16,11 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+    },
+    {
+      path: '/dash',
+      name: 'dash',
+      component: DashView,
     },
   ],
 })
