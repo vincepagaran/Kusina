@@ -73,7 +73,7 @@ function register() {
               
               <!-- Register Button -->
               <v-btn
-                class="mb-8"
+                class="mb-8 register-btn"
                 color="blue"
                 size="large"
                 variant="tonal"
@@ -86,7 +86,7 @@ function register() {
               <!-- Login Link -->
               <p class="register">
                 Already have an account? 
-                <router-link to="/login">Log In</router-link>
+                <router-link to="/login" class="login-link">Log In</router-link>
               </p>
             </div>
           </v-col>
@@ -118,7 +118,7 @@ function register() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/public/pics/bg2.jpg'); 
+  background-image: url('public/pics/bg1.webp');  
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -153,7 +153,7 @@ function register() {
 
 .registerinput input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(209, 25, 25, 0.1);
   border: none;
   padding: 12px 12px 12px 45px;
   border-radius: 99px;
@@ -183,21 +183,13 @@ function register() {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.registerbtn {
-  width: 100%;
-  padding: 10px 0;
-  background: #213032;
-  border: none;
-  border-radius: 99px;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+/* Updated Register Button */
+.register-btn {
+  transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-.registerbtn:hover {
-  background: #e74c3c;
+.register-btn:hover {
+  background-color: #e74c3c; /* Red color on hover */
 }
 
 .register {
@@ -205,14 +197,16 @@ function register() {
   font-size: 15px;
 }
 
-.register a {
-  color: #213032;
+/* Login Link Color */
+.login-link {
+  color: rgb(69, 100, 228); /* Set the color to blue */
   text-decoration: none;
   font-weight: 500;
 }
 
-.register a:hover {
+.login-link:hover {
   text-decoration: underline;
-  color: #e74c3c;
+  color: #e74c3c; /* Maroon/Dark Red color on hover */
 }
+
 </style>
