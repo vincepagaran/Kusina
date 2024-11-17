@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-
 const email = ref('')
 const firstName = ref('')
 const lastName = ref('')
@@ -14,9 +13,7 @@ const router = useRouter()
 // Simulated existing users (for demo purposes)
 const existingUsers = ['test@example.com', 'user@example.com']
 
-function navigateTo(route) {
-  router.push(route)
-}
+
 
 function register() {
   // Check if the email already exists
@@ -62,14 +59,7 @@ function register() {
   <v-app>
     <v-main>
       <v-container fluid class="d-flex justify-center align-center fill-height">
-        <v-btn
-          @click="navigateTo('/login')"
-          class="back-home-btn"
-          outlined
-          color="white"
-        >
-          <v-icon left>mdi-arrow-left</v-icon>
-        </v-btn>
+    
         <!-- Sign-up Form -->
         <div class="signupform">
           <v-avatar size="100">
@@ -87,11 +77,7 @@ function register() {
           </div>
           <div class="signinput">
             <i class="fa-solid fa-phone"></i>
-            <input
-              type="number"
-              v-model="contactNumber"
-              placeholder="Contact Number"
-            />
+            <input type="number" v-model="contactNumber" placeholder="Contact Number" />
           </div>
           <div class="signinput">
             <i class="fa-solid fa-user"></i>
@@ -103,16 +89,10 @@ function register() {
           </div>
           <div class="signinput">
             <i class="fa-solid fa-lock"></i>
-            <input
-              type="password"
-              v-model="confirmPassword"
-              placeholder="Confirm Password"
-            />
+            <input type="password" v-model="confirmPassword" placeholder="Confirm Password" />
           </div>
 
-          <button @click="register" id="Registerbtn" class="signinbtn">
-            Confirm
-          </button>
+          <button @click="register" id="Registerbtn" class="signinbtn">Confirm</button>
           <p class="register">
             Already have an account?
             <router-link to="/login">Login here</router-link>
@@ -160,8 +140,8 @@ function register() {
   align-items: center;
   justify-content: center;
   background: linear-gradient(to bottom, #a3b8c8, #2c3e50);
-  color: #ffffff; 
-   background-image: url('/public/pics/bg2.jpg'); 
+  color: #ffffff;
+  background-image: url('/public/pics/bg2.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
