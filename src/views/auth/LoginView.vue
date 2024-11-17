@@ -20,7 +20,7 @@ function home() {
 </script>
 
 <template>
-  <v-app>
+  <v-app> 
     <v-main>
       <v-container fluid class="d-flex justify-center align-center fill-height">
         <!-- Login Form -->
