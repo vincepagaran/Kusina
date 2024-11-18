@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { requiredValidator, emailValidator, passwordValidator, confirmedValidator } from '@/utils/validators'
+import { supabase, formActionDefault } from '@/utils/supabase';
+
 
 const visible = ref(false)
 const visibleConfirm = ref(false)
@@ -18,8 +20,41 @@ const formData = ref({
   ...formDataDefault,
 })
 
-const onSubmit = () => {
-  alert(formData.value.email)
+const formAction = ref({
+  ...formActionDefault
+})
+
+const onSubmit = async() => {
+  formAction.value = {...formActionDefault}
+  formAction.value.formProcess = true
+
+
+  const { data, error } = await supabase.auth.signUp(
+  {
+    email: formData.value.email,
+    password: formData.value.password,
+    options: {
+      data: {
+        firstname: formData.value.firstname,
+        lastname: formData.value.lastname
+      }
+    }
+  }
+)
+if (error){
+  console.log(error)
+  formAction.value.formErrorMessage = error.message
+  formAction.value.formProcess = error.status
+}
+else if (data){
+  console.log(data)
+  formAction.value.formSuccessMessage = 'Successfully Registered.'
+  // add here more actions if you want
+  refVForm.value?.reset()
+}
+
+
+formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {
@@ -30,6 +65,26 @@ const onFormSubmit = () => {
 </script>
 
 <template>
+  <v-alert v-if="formAction.formSuccessMessage"
+  :text="formAction.formSuccessMessage"
+  title="success!"
+  type="success"
+  variant="tonal"
+  density="compact"
+  border="start"
+  closable
+  ></v-alert>
+
+  <v-alert v-if="formAction.formErrorMessage"
+  :text="formAction.formErrorMessage"
+  title="Error!"
+  type="Error"
+  variant="tonal"
+  density="compact"
+  border="start"
+  closable
+  ></v-alert>
+
   <v-form ref="refVForm" @submit.prevent="onFormSubmit">
     <v-app>
       <v-main>
@@ -111,6 +166,8 @@ const onFormSubmit = () => {
                   variant="tonal"
                   block
                   @click="register"
+                  :disabled="formAction.formProcess"
+                  :loading="formAction.formProcess"
                 >
                   Register
                 </v-btn>
