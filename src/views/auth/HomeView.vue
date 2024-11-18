@@ -1,3 +1,29 @@
+<script>
+export default {
+  data() {
+    return {
+      categories: [
+        { title: "Main Courses", img: "/pics/main.jpg" },
+        { title: "Desserts", img: "/pics/dessert.jpg" },
+        { title: "Healthy Eats", img: "/pics/healthy.jpg" },
+        { title: "Snacks", img: "/pics/snacks.jpg" }
+      ]
+    };
+  },
+  methods: {
+    viewCategory(category) {
+      this.$router.push({ name: 'category', params: { categoryName: category } });
+    },
+    logout() {
+      // Add your logout logic here (e.g., call the Supabase or authentication logout function)
+      console.log('Logging out...');
+      
+      // Redirect to the dash page after logout
+      this.$router.push('/');
+    }
+  }
+};
+</script>
 <template>
   <v-app>
     <!-- Navbar -->
@@ -13,9 +39,7 @@
       <router-link to="/dash" class="router-link-btn">
         <v-btn text>Cooklater</v-btn>
       </router-link>
-      <router-link to="/" class="router-link-btn">
-        <v-btn text>Logout</v-btn>
-      </router-link>
+      <v-btn text @click="logout">Logout</v-btn>
     </v-app-bar>
 
     <!-- Main Content -->
@@ -38,72 +62,3 @@
     </v-main>
   </v-app>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      categories: [
-        { title: "Main Courses", img: "/pics/main.jpg" },
-        { title: "Desserts", img: "/pics/dessert.jpg" },
-        { title: "Healthy Eats", img: "/pics/healthy.jpg" },
-        { title: "Snacks", img: "/pics/snacks.jpg" }
-      ]
-    };
-  },
-  methods: {
-    viewCategory(category) {
-      this.$router.push({ name: 'category', params: { categoryName: category } });
-    }
-  }
-};
-</script>
-
-<style scoped>
-.text-center {
-  text-align: center;
-}
-
-.v-btn {
-  margin-left: 10px;
-}
-
-.v-main {
-  background-image: url("/pics/bg3.jpg");
-  background-size: cover;
-  background-position: center;
-}
-
-/* Space below the title */
-.title-text {
-  margin-bottom: 40px;
-  font-size: 36px;
-  font-weight: bold;
-  color: white; /* White text color for title */
-}
-
-/* Category Cards */
-.category-card {
-  background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Category Image Styling */
-.category-image {
-  object-fit: cover; /* Cover the whole card */
-  height: 200px; /* Ensure the image covers the card's height */
-  width: 100%; /* Make sure the image fills the card's width */
-}
-
-/* Adjust spacing between categories */
-.v-row {
-  margin-top: 20px;
-}
-
-/* Styling the router-links for buttons */
-.router-link-btn {
-  text-decoration: none; /* Remove underline from router-link */
-}
-</style>
