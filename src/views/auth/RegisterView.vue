@@ -15,7 +15,7 @@ function register() {
       console.log('Registering with:', email.value, password.value)
       
       // Simulate registration success and redirect to the login page
-      router.push('/login')
+      router.push('/login') // Redirect to login after successful registration
     } else {
       alert('Passwords do not match.')
     }

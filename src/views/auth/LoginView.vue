@@ -11,8 +11,8 @@ function login() {
   if (email.value && password.value) {
     console.log('Logging in with:', email.value, password.value)
     
-    // Simulate login success and redirect to the dashboard or another page
-    router.push('/dashboard') // Change to the appropriate route
+    // Redirect to the homepage (or another desired route)
+    router.push('/home') // Change to the appropriate route
   } else {
     alert('Please fill out all fields.')
   }
