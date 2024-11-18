@@ -1,25 +1,36 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { requiredValidator, emailValidator } from '@/utils/validators'
 
-const email = ref('')
-const password = ref('')
-const visible = ref(false) // For password visibility
-const router = useRouter()
+const visible = ref(false) 
 
-function login() {
-  if (email.value && password.value) {
-    console.log('Logging in with:', email.value, password.value)
-    
-    // Redirect to the homepage (or another desired route)
-    router.push('/home') // Change to the appropriate route
-  } else {
-    alert('Please fill out all fields.')
-  }
+const refVForm = ref()
+
+const formDataDefault = {
+  email: '',
+  password: '',
 }
+
+const formData = ref({
+  ...formDataDefault,
+})
+
+const onSubmit = () => {
+  alert(formData.value.email)
+}
+
+const onFormSubmit = () => {
+  refVForm.value?.validate().then(({ valid }) => {
+    if (valid) 
+    onSubmit()
+  })
+}
+
+
 </script>
 
 <template>
+  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
   <v-app>
     <v-main>
       <v-container fluid class="d-flex justify-center align-center fill-height">
@@ -29,21 +40,22 @@ function login() {
             <div class="loginform">
               <!-- Logo -->
               <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
-              
+
               <h1 class="logintitle">Login</h1>
-              
+
               <!-- Email Input -->
               <v-text-field
-                v-model="email"
+                v-model="formData.email"
                 prepend-inner-icon="mdi-email-outline"
                 placeholder="Email"
                 density="compact"
                 variant="outlined"
+                :rules="[requiredValidator, emailValidator]"
               />
 
               <!-- Password Input with Visibility Toggle -->
               <v-text-field
-                v-model="password"
+                v-model="formData.password"
                 :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                 :type="visible ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock-outline"
@@ -51,10 +63,12 @@ function login() {
                 density="compact"
                 variant="outlined"
                 @click:append-inner="visible = !visible"
+                :rules="[requiredValidator]"
               />
-              
+
               <!-- Login Button -->
               <v-btn
+                type="submit"
                 class="mb-8 login-btn"
                 color="blue"
                 size="large"
@@ -67,7 +81,7 @@ function login() {
 
               <!-- Register Link -->
               <p class="register">
-                Don't have an account? 
+                Don't have an account?
                 <router-link to="/register" class="signup-link">Sign Up</router-link>
               </p>
             </div>
@@ -76,6 +90,7 @@ function login() {
       </v-container>
     </v-main>
   </v-app>
+  </v-form>
 </template>
 
 <style scoped>
@@ -100,7 +115,7 @@ function login() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/pics/bg3.jpg'); 
+  background-image: url('/pics/bg3.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -153,5 +168,4 @@ function login() {
 .login-btn:hover {
   background-color: #e74c3c; /* Maroon/Dark Red color on hover */
 }
-
 </style>
