@@ -55,7 +55,7 @@ onMounted(() => {
             <v-avatar size="60">
               <!-- Set size of v-avatar here, e.g., 40 pixels -->
               <v-img
-                src="/public/pics/logo.png"
+                src="/pics/logo.png"
                 alt="FlavorSync Logo"
                 max-width="100%"
                 max-height="100%"
@@ -95,7 +95,7 @@ onMounted(() => {
   height: 90vh; /* Full height for the hero section */
   text-align: center;
   padding: 100px 20px;
-  background: url('public/pics/gif.gif') no-repeat center center fixed;
+  background: url('/pics/gif.gif') no-repeat center center fixed;
   background-size: cover; /* Ensures the GIF covers the full container */
   animation: moveBackground 10s linear infinite; /* Adding animation for movement */
   color: #ffffff; /* White text */
