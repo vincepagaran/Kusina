@@ -118,7 +118,7 @@ function register() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/pics/bg1.jpg');  
+  background-image: url('/pics/bg3.jpg');  
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

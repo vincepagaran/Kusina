@@ -69,7 +69,7 @@ export default {
 }
 
 .v-main {
-  background-image: url("/pics/bg1.jpg");
+  background-image: url("/pics/bg3.jpg");
   background-size: cover;
   background-position: center;
 }
