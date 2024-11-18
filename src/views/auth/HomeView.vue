@@ -3,7 +3,7 @@
     <!-- Navbar -->
     <v-app-bar app>
       <v-toolbar-title>
-        <v-img src="public/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
+        <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- Router links wrapped around v-btn for Sign Up and Logout -->
@@ -69,7 +69,7 @@ export default {
 }
 
 .v-main {
-  background-image: url("public/pics/bg1.webp");
+  background-image: url("public/pics/bg1.jpg");
   background-size: cover;
   background-position: center;
 }

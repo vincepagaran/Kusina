@@ -100,7 +100,7 @@ function login() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('public/pics/bg1.webp'); 
+  background-image: url('/pics/bg1.jpg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
