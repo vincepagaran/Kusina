@@ -1,9 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 import { requiredValidator, emailValidator } from '@/utils/validators'
+import { formActionDefault, supabase } from '@/utils/supabase';
+import { useRouter } from 'vue-router'
+
 
 const visible = ref(false) 
-
+const router = useRouter()
 const refVForm = ref()
 
 const formDataDefault = {
@@ -14,9 +17,30 @@ const formDataDefault = {
 const formData = ref({
   ...formDataDefault,
 })
+const formAction = ref({
+  ...formActionDefault,
+})
 
-const onSubmit = () => {
-  alert(formData.value.email)
+const onSubmit = async() => {
+  formAction.value = { ...formActionDefault }
+  formAction.value.formProcess = true
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+  email: formData.value.email,
+  password: formData.value.password,
+})
+  if (error) {
+    console.log(error)
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formProcess = error.status
+  } else if (data) {
+    console.log(data)
+    formAction.value.formSuccessMessage = 'Successfully Login.'
+    // add here more actions if you want
+    router.replace('/home')
+  }
+refVForm.value?.reset()
+  formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {

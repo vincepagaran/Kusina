@@ -1,8 +1,13 @@
 <script setup>
 import { ref } from 'vue'
-import { requiredValidator, emailValidator, passwordValidator, confirmedValidator } from '@/utils/validators'
-import { supabase, formActionDefault } from '@/utils/supabase';
-import { useRouter } from 'vue-router';
+import {
+  requiredValidator,
+  emailValidator,
+  passwordValidator,
+  confirmedValidator,
+} from '@/utils/validators'
+import { supabase, formActionDefault } from '@/utils/supabase'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const visible = ref(false)
@@ -22,16 +27,14 @@ const formData = ref({
 })
 
 const formAction = ref({
-  ...formActionDefault
+  ...formActionDefault,
 })
 
-const onSubmit = async() => {
-  formAction.value = {...formActionDefault}
+const onSubmit = async () => {
+  formAction.value = { ...formActionDefault }
   formAction.value.formProcess = true
 
-
-  const { data, error } = await supabase.auth.signUp(
-  {
+  const { data, error } = await supabase.auth.signUp({
     email: formData.value.email,
     password: formData.value.password,
     options: {
@@ -39,26 +42,22 @@ const onSubmit = async() => {
         firstname: formData.value.firstname,
         lastname: formData.value.lastname,
         // is_admin: true
-      }
-    }
+      },
+    },
+  })
+  if (error) {
+    console.log(error)
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formProcess = error.status
+  } else if (data) {
+    console.log(data)
+    formAction.value.formSuccessMessage = 'Successfully Registered.'
+    // add here more actions if you want
+    router.replace('/home')
   }
-)
-if (error){
-  console.log(error)
-  formAction.value.formErrorMessage = error.message
-  formAction.value.formProcess = error.status
-}
-else if (data){
-  console.log(data)
-  formAction.value.formSuccessMessage = 'Successfully Registered.'
-  // add here more actions if you want
-  router.replace('/home')
-
-
 
   refVForm.value?.reset()
-}
-formAction.value.formProcess = false
+  formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {
@@ -69,24 +68,26 @@ const onFormSubmit = () => {
 </script>
 
 <template>
-  <v-alert v-if="formAction.formSuccessMessage"
-  :text="formAction.formSuccessMessage"
-  title="success!"
-  type="success"
-  variant="tonal"
-  density="compact"
-  border="start"
-  closable
+  <v-alert
+    v-if="formAction.formSuccessMessage"
+    :text="formAction.formSuccessMessage"
+    title="success!"
+    type="success"
+    variant="tonal"
+    density="compact"
+    border="start"
+    closable
   ></v-alert>
 
-  <v-alert v-if="formAction.formErrorMessage"
-  :text="formAction.formErrorMessage"
-  title="Error!"
-  type="Error"
-  variant="tonal"
-  density="compact"
-  border="start"
-  closable
+  <v-alert
+    v-if="formAction.formErrorMessage"
+    :text="formAction.formErrorMessage"
+    title="Error!"
+    type="Error"
+    variant="tonal"
+    density="compact"
+    border="start"
+    closable
   ></v-alert>
 
   <v-form ref="refVForm" @submit.prevent="onFormSubmit">
