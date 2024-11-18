@@ -1,99 +1,132 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { requiredValidator, emailValidator, passwordValidator, confirmedValidator } from '@/utils/validators'
 
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-const visible = ref(false) // For password visibility
-const visibleConfirm = ref(false) // For confirm password visibility
-const router = useRouter()
+const visible = ref(false)
+const visibleConfirm = ref(false)
+const refVForm = ref()
 
-function register() {
-  if (email.value && password.value && confirmPassword.value) {
-    if (password.value === confirmPassword.value) {
-      console.log('Registering with:', email.value, password.value)
-      
-      // Simulate registration success and redirect to the login page
-      router.push('/login') // Redirect to login after successful registration
-    } else {
-      alert('Passwords do not match.')
-    }
-  } else {
-    alert('Please fill out all fields.')
-  }
+const formDataDefault = {
+  firstname: '',
+  lastname: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+}
+
+const formData = ref({
+  ...formDataDefault,
+})
+
+const onSubmit = () => {
+  alert(formData.value.email)
+}
+
+const onFormSubmit = () => {
+  refVForm.value?.validate().then(({ valid }) => {
+    if (valid) onSubmit()
+  })
 }
 </script>
 
 <template>
-  <v-app>
-    <v-main>
-      <v-container fluid class="d-flex justify-center align-center fill-height">
-        <!-- Registration Form -->
-        <v-row class="d-flex justify-center">
-          <v-col cols="12" sm="8" md="6" lg="4">
-            <div class="registerform">
-              <!-- Logo -->
-              <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
-              
-              <h1 class="logintitle">Register</h1>
-              
-              <!-- Email Input -->
-              <v-text-field
-                v-model="email"
-                prepend-inner-icon="mdi-email-outline"
-                placeholder="Email"
-                density="compact"
-                variant="outlined"
-              />
+  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
+    <v-app>
+      <v-main>
+        <v-container fluid class="d-flex justify-center align-center fill-height">
+          <!-- Registration Form -->
+          <v-row class="d-flex justify-center">
+            <v-col cols="12" sm="8" md="6" lg="4">
+              <div class="registerform">
+                <!-- Logo -->
+                <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
 
-              <!-- Password Input with Visibility Toggle -->
-              <v-text-field
-                v-model="password"
-                :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                :type="visible ? 'text' : 'password'"
-                prepend-inner-icon="mdi-lock-outline"
-                placeholder="Password"
-                density="compact"
-                variant="outlined"
-                @click:append-inner="visible = !visible"
-              />
+                <h1 class="logintitle">Register</h1>
 
-              <!-- Confirm Password Input with Visibility Toggle -->
-              <v-text-field
-                v-model="confirmPassword"
-                :append-inner-icon="visibleConfirm ? 'mdi-eye-off' : 'mdi-eye'"
-                :type="visibleConfirm ? 'text' : 'password'"
-                prepend-inner-icon="mdi-lock-outline"
-                placeholder="Confirm Password"
-                density="compact"
-                variant="outlined"
-                @click:append-inner="visibleConfirm = !visibleConfirm"
-              />
-              
-              <!-- Register Button -->
-              <v-btn
-                class="mb-8 register-btn"
-                color="blue"
-                size="large"
-                variant="tonal"
-                block
-                @click="register"
-              >
-                Register
-              </v-btn>
+                <!-- fname Input -->
+                <v-text-field
+                  v-model="formData.firstname"
+                  prepend-inner-icon="mdi-account-outline"
+                  placeholder="First Name"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[requiredValidator]"
+                />
 
-              <!-- Login Link -->
-              <p class="register">
-                Already have an account? 
-                <router-link to="/login" class="login-link">Log In</router-link>
-              </p>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
-  </v-app>
+                <!-- Lname Input -->
+                <v-text-field
+                  v-model="formData.lastname"
+                  prepend-inner-icon="mdi-account-outline"
+                  placeholder="Last Name"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[requiredValidator]"
+                />
+
+                <!-- Email Input -->
+                <v-text-field
+                  v-model="formData.email"
+                  prepend-inner-icon="mdi-email-outline"
+                  placeholder="Email"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[requiredValidator, emailValidator]"
+                />
+
+                <!-- Password Input with Visibility Toggle -->
+                <v-text-field
+                  v-model="formData.password"
+                  :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="visible ? 'text' : 'password'"
+                  prepend-inner-icon="mdi-lock-outline"
+                  placeholder="Password"
+                  density="compact"
+                  variant="outlined"
+                  @click:append-inner="visible = !visible"
+                  :rules="[requiredValidator, passwordValidator]"
+                />
+
+                <!-- Confirm Password Input with Visibility Toggle -->
+                <v-text-field
+                  v-model="formData.password_confirmation"
+                  :append-inner-icon="visibleConfirm ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="visibleConfirm ? 'text' : 'password'"
+                  prepend-inner-icon="mdi-lock-outline"
+                  placeholder="Confirm Password"
+                  density="compact"
+                  variant="outlined"
+                  @click:append-inner="visibleConfirm = !visibleConfirm"
+                  :rules="[
+                    requiredValidator,
+                    confirmedValidator(formData.password_confirmation, formData.password),
+                  ]"
+                />
+
+                <!-- Register Button -->
+                <v-btn
+                  type="submit"
+                  class="mb-8 register-btn"
+                  color="blue"
+                  size="large"
+                  variant="tonal"
+                  block
+                  @click="register"
+                >
+                  Register
+                </v-btn>
+
+                <!-- Login Link -->
+                <p class="register">
+                  Already have an account?
+                  <router-link to="/login" class="login-link">Log In</router-link>
+                </p>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </v-app>
+  </v-form>
 </template>
 
 <style scoped>
@@ -118,7 +151,7 @@ function register() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/pics/bg3.jpg');  
+  background-image: url('/pics/bg3.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -208,5 +241,4 @@ function register() {
   text-decoration: underline;
   color: #e74c3c; /* Maroon/Dark Red color on hover */
 }
-
 </style>
