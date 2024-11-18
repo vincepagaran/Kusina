@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import { requiredValidator, emailValidator, passwordValidator, confirmedValidator } from '@/utils/validators'
 import { supabase, formActionDefault } from '@/utils/supabase';
+import { useRouter } from 'vue-router';
 
-
+const router = useRouter()
 const visible = ref(false)
 const visibleConfirm = ref(false)
 const refVForm = ref()
@@ -36,7 +37,8 @@ const onSubmit = async() => {
     options: {
       data: {
         firstname: formData.value.firstname,
-        lastname: formData.value.lastname
+        lastname: formData.value.lastname,
+        // is_admin: true
       }
     }
   }
@@ -50,10 +52,12 @@ else if (data){
   console.log(data)
   formAction.value.formSuccessMessage = 'Successfully Registered.'
   // add here more actions if you want
+  router.replace('/home')
+
+
+
   refVForm.value?.reset()
 }
-
-
 formAction.value.formProcess = false
 }
 
