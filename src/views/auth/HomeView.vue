@@ -44,10 +44,10 @@ export default {
   data() {
     return {
       categories: [
-        { title: "Main Courses", img: "public/pics/main.jpg" },
-        { title: "Desserts", img: "public/pics/dessert.jpg" },
-        { title: "Healthy Eats", img: "public/pics/healthy.jpg" },
-        { title: "Snacks", img: "public/pics/snacks.jpg" }
+        { title: "Main Courses", img: "/pics/main.jpg" },
+        { title: "Desserts", img: "/pics/dessert.jpg" },
+        { title: "Healthy Eats", img: "/pics/healthy.jpg" },
+        { title: "Snacks", img: "/pics/snacks.jpg" }
       ]
     };
   },
@@ -69,7 +69,7 @@ export default {
 }
 
 .v-main {
-  background-image: url("public/pics/bg1.jpg");
+  background-image: url("/pics/bg1.jpg");
   background-size: cover;
   background-position: center;
 }
