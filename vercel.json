@@ -1,1 +1,3 @@
-git merge feat/supabase
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
