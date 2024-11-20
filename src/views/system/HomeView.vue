@@ -1,26 +1,29 @@
-<script>
-export default {
-  data() {
-    return {
-      categories: [
-        { title: "Main Courses", img: "/pics/main.jpg" },
-        { title: "Desserts", img: "/pics/dessert.jpg" },
-        { title: "Healthy Eats", img: "/pics/healthy.jpg" },
-        { title: "Snacks", img: "/pics/snacks.jpg" }
-      ]
-    };
-  },
-  methods: {
-    viewCategory(category) {
-      this.$router.push({ name: 'category', params: { categoryName: category } });
-    },
-    logout() {
-      // Add your logout logic here (e.g., call the Supabase or authentication logout function)
-      console.log('Logging out...');
-      
-      // Redirect to the dash page after logout
-      this.$router.push('/');
-    }
+<script setup>
+import { ref, onMounted } from 'vue';
+import { supabase } from '@/utils/supabase';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const user = ref(null);
+
+onMounted(async () => {
+  const { data: currentUser, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error fetching user:', error.message);
+    router.replace('/login'); // Redirect to login if there's an error
+  } else if (!currentUser) {
+    router.replace('/login'); // Redirect to login if no user is logged in
+  } else {
+    user.value = currentUser.user;
+  }
+});
+
+const logout = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('Logout failed:', error.message);
+  } else {
+    router.replace('/login'); // Redirect to login after logout
   }
 };
 </script>
