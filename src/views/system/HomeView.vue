@@ -1,31 +1,31 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { supabase } from '@/utils/supabase';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/utils/supabase'
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const user = ref(null);
+const router = useRouter()
+const user = ref(null)
 
 onMounted(async () => {
-  const { data: currentUser, error } = await supabase.auth.getUser();
+  const { data: currentUser, error } = await supabase.auth.getUser()
   if (error) {
-    console.error('Error fetching user:', error.message);
-    router.replace('/login'); // Redirect to login if there's an error
+    console.error('Error fetching user:', error.message)
+    router.replace('/login') // Redirect to login if there's an error
   } else if (!currentUser) {
-    router.replace('/login'); // Redirect to login if no user is logged in
+    router.replace('/login') // Redirect to login if no user is logged in
   } else {
-    user.value = currentUser.user;
+    user.value = currentUser.user
   }
-});
+})
 
 const logout = async () => {
-  const { error } = await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut()
   if (error) {
-    console.error('Logout failed:', error.message);
+    console.error('Logout failed:', error.message)
   } else {
-    router.replace('/login'); // Redirect to login after logout
+    router.replace('/login') // Redirect to login after logout
   }
-};
+}
 </script>
 <template>
   <v-app>
@@ -35,15 +35,43 @@ const logout = async () => {
         <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <!-- Router links wrapped around v-btn for Sign Up and Logout -->
-      <router-link to="/" class="router-link-btn">
-        <v-btn text>Dishes</v-btn>
-      </router-link>
-      <router-link to="/dash" class="router-link-btn">
-        <v-btn text>Cooklater</v-btn>
-      </router-link>
-      <v-btn text @click="logout">Logout</v-btn>
+      <!-- The app bar now only contains the menu button for the navigation drawer -->
+      <v-btn icon @click="drawer = !drawer">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
     </v-app-bar>
+
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail>
+      <v-list>
+        <v-list-item
+          prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
+          subtitle="sandra_a88@gmailcom"
+          title="Sandra Adams"
+        ></v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list density="compact" nav>
+        <v-list-item
+          prepend-icon="mdi-history"
+          title="Recent recipes"
+          value="recentrecipes"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-checkbox-marked-circle-outline"
+          title="Finished recipes"
+          value="finishedrecipes"
+        ></v-list-item>
+        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" value="dishes"></v-list-item>
+        <v-list-item
+          @click="logout"
+          prepend-icon="mdi-logout"
+          title="Logout"
+          value="logout"
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <!-- Main Content -->
     <v-main>
