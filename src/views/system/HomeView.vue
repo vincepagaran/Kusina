@@ -30,7 +30,7 @@ const logout = async () => {
 <template>
   <v-app>
     <!-- Navbar -->
-    <v-app-bar app>
+    <v-app-bar>
       <v-toolbar-title>
         <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
