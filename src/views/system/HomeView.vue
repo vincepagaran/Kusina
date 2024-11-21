@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const user = ref(null)
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
 
 onMounted(async () => {
   const { data: currentUser, error } = await supabase.auth.getUser()
@@ -26,7 +27,11 @@ const logout = async () => {
     router.replace('/login') // Redirect to login after logout
   }
 }
+
+// Watch and save drawer state
+drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 </script>
+
 <template>
   <v-app>
     <!-- Navbar -->
@@ -52,7 +57,7 @@ const logout = async () => {
 
       <v-divider></v-divider>
 
-      <v-list density="compact">
+      <v-list density="compact" nav>
         <v-list-item
           prepend-icon="mdi-history"
           title="Recent recipes"
