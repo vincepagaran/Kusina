@@ -78,7 +78,6 @@ const logout = async () => {
       <v-container>
         <h1 class="text-center title-text">What do you want to make?</h1>
         <v-row class="mt-4">
-
           <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
             <v-card class="category-card">
               <v-img :src="category.img" alt="Category Image" class="category-image"></v-img>
