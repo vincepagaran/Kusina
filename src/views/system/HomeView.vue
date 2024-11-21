@@ -76,7 +76,7 @@ const logout = async () => {
     <!-- Main Content -->
     <v-main>
       <v-container>
-        <h1 class="text-center title-text">What do you want to make?</h1>
+        <h1 class="text-center title-text">Find Dishes</h1>
         <v-row class="mt-4">
           <!-- Category Images -->
           <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
