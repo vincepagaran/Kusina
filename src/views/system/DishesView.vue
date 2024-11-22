@@ -111,7 +111,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 
 <style scoped>
 .search-bar {
-  max-height: 50px; /* Matches the default height of v-app-bar */
-  width: 50px; /* Adjust as needed */
+  max-height: 56px; /* Matches the default height of v-app-bar */
+  width: 10px; /* Adjust as needed */
 }
-</style>
+</style>  
