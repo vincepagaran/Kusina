@@ -5,7 +5,7 @@ import { formActionDefault, supabase } from '@/utils/supabase';
 import { useRouter } from 'vue-router'
 
 
-const visible = ref(false) 
+const visible = ref(false)
 const router = useRouter()
 const refVForm = ref()
 
@@ -45,7 +45,7 @@ refVForm.value?.reset()
 
 const onFormSubmit = () => {
   refVForm.value?.validate().then(({ valid }) => {
-    if (valid) 
+    if (valid)
     onSubmit()
   })
 }
@@ -61,7 +61,7 @@ const onFormSubmit = () => {
         <!-- Login Form -->
         <v-row class="d-flex justify-center">
           <v-col cols="12" sm="8" md="6" lg="4">
-            <div class="loginform">
+             <div class="loginform">
               <!-- Logo -->
               <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
 
