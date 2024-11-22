@@ -43,6 +43,17 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
         <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <!-- Adjusted Search Bar -->
+      <v-text-field
+        v-model="searchQuery"
+        label="Search for a dish"
+        dense
+        clearable
+        prepend-inner-icon="mdi-magnify"
+        hide-details
+        class="search-bar"
+      ></v-text-field>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" expand-on-hover rail>
@@ -97,3 +108,10 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+.search-bar {
+  max-height: 56px; /* Matches the default height of v-app-bar */
+  width: 10px; /* Adjust as needed */
+}
+</style>  
