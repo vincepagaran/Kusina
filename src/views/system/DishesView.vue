@@ -36,14 +36,13 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <!-- Navbar -->
     <v-app-bar>
+      <v-btn icon @click="drawer = !drawer">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
       <v-toolbar-title>
         <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <!-- The app bar now only contains the menu button for the navigation drawer -->
-      <v-btn icon @click="drawer = !drawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" expand-on-hover rail>
@@ -58,6 +57,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
+        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
         <v-list-item
           prepend-icon="mdi-history"
           title="Recent recipes"
