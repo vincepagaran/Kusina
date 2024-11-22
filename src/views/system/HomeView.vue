@@ -36,14 +36,14 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <!-- Navbar -->
     <v-app-bar>
+      <v-btn icon @click="drawer = !drawer">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
       <v-toolbar-title>
         <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- The app bar now only contains the menu button for the navigation drawer -->
-      <v-btn icon @click="drawer = !drawer">
-        <v-icon append>mdi-menu</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" expand-on-hover rail>
@@ -58,32 +58,24 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-  <v-list-item
-    prepend-icon="mdi-home"
-    title="Home"
-    @click="router.push('/')"
-  ></v-list-item>
-  <v-list-item
-    prepend-icon="mdi-history"
-    title="Recent recipes"
-    @click="router.push('/recentrecipes')"
-  ></v-list-item>
-  <v-list-item
-    prepend-icon="mdi-checkbox-marked-circle-outline"
-    title="Finished recipes"
-    @click="router.push('/finishedrecipes')"
-  ></v-list-item>
-  <v-list-item
-    prepend-icon="mdi-food"
-    title="Dishes/Recipes"
-    @click="router.push('/dishes')"
-  ></v-list-item>
-  <v-list-item
-    @click="logout"
-    prepend-icon="mdi-logout"
-    title="Logout"
-  ></v-list-item>
-</v-list>
+        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-history"
+          title="Recent recipes"
+          @click="router.push('/recentrecipes')"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-checkbox-marked-circle-outline"
+          title="Finished recipes"
+          @click="router.push('/finishedrecipes')"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-food"
+          title="Dishes/Recipes"
+          @click="router.push('/dishes')"
+        ></v-list-item>
+        <v-list-item @click="logout" prepend-icon="mdi-logout" title="Logout"></v-list-item>
+      </v-list>
     </v-navigation-drawer>
 
     <!-- Main Content -->
