@@ -84,7 +84,6 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     title="Logout"
   ></v-list-item>
 </v-list>
-
     </v-navigation-drawer>
 
     <!-- Main Content -->
