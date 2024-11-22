@@ -35,8 +35,8 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 <template>
   <v-app>
     <!-- Navbar -->
-    <v-app-bar>
-      <v-btn icon @click="drawer = !drawer">
+    <v-app-bar style="background-color: #404258; color: #E2DFD0;">
+        <v-btn icon @click="drawer = !drawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
       <v-toolbar-title>
@@ -56,8 +56,8 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       ></v-text-field>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" expand-on-hover rail>
-      <v-list>
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail style="background-color: #404258; color: #E2DFD0;">
+        <v-list>
         <v-list-item
           prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
           subtitle="sandra_a88@gmailcom"
@@ -90,9 +90,9 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
-      <v-container>
-        <h1 class="text-center title-text">What do you want to make?</h1>
+    <v-main style="background-color: #E2DFD0;">
+        <v-container>
+        <h1 class="text-center title-text" style="background-color: #E2DFD0; color: #404258;">What do you want to make?</h1>
         <v-row class="mt-4">
           <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
             <v-card class="category-card">
