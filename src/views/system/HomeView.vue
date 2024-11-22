@@ -35,7 +35,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 <template>
   <v-app>
     <!-- Navbar -->
-    <v-app-bar>
+    <v-app-bar style="background-color: #404258; color: #E2DFD0;">
       <v-btn icon @click="drawer = !drawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
@@ -46,7 +46,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       <!-- The app bar now only contains the menu button for the navigation drawer -->
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" expand-on-hover rail>
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail style="background-color: #404258; color: #E2DFD0;">
       <v-list>
         <v-list-item
           prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
@@ -79,9 +79,9 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
+    <v-main style="background-color: #E2DFD0;">
       <v-container>
-        <h1 class="text-center title-text">What do you want to make?</h1>
+        <h1 class="text-center title-text" style="background-color: #E2DFD0; color: #404258;">What do you want to make?</h1>
         <v-row class="mt-4">
           <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
             <v-card class="category-card">
