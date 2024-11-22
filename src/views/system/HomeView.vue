@@ -42,7 +42,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       <v-spacer></v-spacer>
       <!-- The app bar now only contains the menu button for the navigation drawer -->
       <v-btn icon @click="drawer = !drawer">
-        <v-icon>mdi-menu</v-icon>
+        <v-icon append>mdi-menu</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -58,24 +58,33 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <v-list-item
-          prepend-icon="mdi-history"
-          title="Recent recipes"
-          value="recentrecipes"
-        ></v-list-item>
-        <v-list-item
-          prepend-icon="mdi-checkbox-marked-circle-outline"
-          title="Finished recipes"
-          value="finishedrecipes"
-        ></v-list-item>
-        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" value="dishes"></v-list-item>
-        <v-list-item
-          @click="logout"
-          prepend-icon="mdi-logout"
-          title="Logout"
-          value="logout"
-        ></v-list-item>
-      </v-list>
+  <v-list-item
+    prepend-icon="mdi-home"
+    title="Home"
+    @click="router.push('/')"
+  ></v-list-item>
+  <v-list-item
+    prepend-icon="mdi-history"
+    title="Recent recipes"
+    @click="router.push('/recentrecipes')"
+  ></v-list-item>
+  <v-list-item
+    prepend-icon="mdi-checkbox-marked-circle-outline"
+    title="Finished recipes"
+    @click="router.push('/finishedrecipes')"
+  ></v-list-item>
+  <v-list-item
+    prepend-icon="mdi-food"
+    title="Dishes/Recipes"
+    @click="router.push('/dishes')"
+  ></v-list-item>
+  <v-list-item
+    @click="logout"
+    prepend-icon="mdi-logout"
+    title="Logout"
+  ></v-list-item>
+</v-list>
+
     </v-navigation-drawer>
 
     <!-- Main Content -->
