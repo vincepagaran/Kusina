@@ -68,7 +68,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
           title="Finished recipes"
           value="finishedrecipes"
         ></v-list-item>
-        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" value="dishes"></v-list-item>
+        <v-list-item @click="router.push('/dishes')" prepend-icon="mdi-food" title="Dishes/Recipes" value="dishes"></v-list-item>
         <v-list-item
           @click="logout"
           prepend-icon="mdi-logout"
