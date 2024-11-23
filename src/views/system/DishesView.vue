@@ -57,16 +57,6 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" expand-on-hover rail style="background-color: #404258; color: #E2DFD0;">
-        <v-list>
-        <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
-          subtitle="sandra_a88@gmailcom"
-          title="Sandra Adams"
-        ></v-list-item>
-      </v-list>
-
-      <v-divider></v-divider>
-
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
         <v-list-item
@@ -114,4 +104,4 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   max-height: 56px; /* Matches the default height of v-app-bar */
   width: 10px; /* Adjust as needed */
 }
-</style>  
+</style>
