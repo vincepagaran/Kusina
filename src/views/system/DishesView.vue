@@ -58,7 +58,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 
     <v-navigation-drawer v-model="drawer" expand-on-hover rail style="background-color: #404258; color: #E2DFD0;">
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
+        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/home')"></v-list-item>
         <v-list-item
           prepend-icon="mdi-history"
           title="Recent recipes"
