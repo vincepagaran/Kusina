@@ -28,7 +28,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background-color: #e2dfd0">
+      <v-main style="background-color: #e2dfd0; min-height: 100vh">
         <v-container>
           <h1 class="text-center title-text" style="background-color: #e2dfd0; color: #404258">
             What do you want to make?
