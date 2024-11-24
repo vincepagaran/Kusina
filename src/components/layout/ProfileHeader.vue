@@ -13,7 +13,7 @@ const authStore = useAuthUserStore()
 
 // Load Variables
 const formAction = ref({
-  ...formActionDefault
+  ...formActionDefault,
 })
 
 // User data object to display information
@@ -75,15 +75,13 @@ onMounted(() => {
     <template #activator="{ props }">
       <v-btn icon v-bind="props">
         <v-avatar
-          v-if="authStore.userData && authStore.userData.image_url"
+          v-if="authStore.userData?.image_url"
           :image="authStore.userData.image_url"
           color="grey-darken-3"
           size="large"
         ></v-avatar>
         <v-avatar v-else color="grey-darken-3" size="large">
-          <span class="text-h5">
-            {{ getAvatarText(authStore.userData?.firstname || 'User') }}
-          </span>
+          <span class="text-h5">{{ userData.initials }}</span>
         </v-avatar>
       </v-btn>
     </template>
@@ -93,13 +91,7 @@ onMounted(() => {
         <v-list>
           <v-list-item :title="userData.fullname" :subtitle="userData.email">
             <template #prepend>
-              <v-avatar
-                v-if="authStore.userData.image_url"
-                :image="authStore.userData.image_url"
-                color="grey-darken-3"
-                size="large"
-              ></v-avatar>
-
+              <v-avatar v-if="authStore.userData?.image_url" :image="authStore.userData.image_url" color="grey-darken-3" size="large"></v-avatar>
               <v-avatar v-else color="grey-darken-3" size="large">
                 <span class="text-h5">{{ userData.initials }}</span>
               </v-avatar>

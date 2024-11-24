@@ -22,16 +22,6 @@ onMounted(async () => {
   }
 });
 
-// Logout functionality
-const logout = async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error('Logout failed:', error.message);
-  } else {
-    router.replace('/login'); // Redirect to login after logout
-  }
-};
-
 const getLoggedStatus = async () => {
   isLoggedIn.value = await isAuthenticated()
 }
@@ -64,7 +54,6 @@ onMounted(()=> {
         <v-list-item prepend-icon="mdi-history" title="Recent Recipes" @click="router.push('/recentrecipes')"></v-list-item>
         <v-list-item prepend-icon="mdi-checkbox-marked-circle-outline" title="Finished Recipes" @click="router.push('/finishedrecipes')"></v-list-item>
         <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" @click="router.push('/dishes')"></v-list-item>
-        <v-list-item prepend-icon="mdi-logout" title="Logout" @click="logout"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
