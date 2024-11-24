@@ -59,7 +59,7 @@ onMounted(()=> {
 
     <!-- Main Content -->
     <v-main>
-      <v-slot></v-slot>
+      <slot></slot>
     </v-main>
 
     <!-- Footer -->
