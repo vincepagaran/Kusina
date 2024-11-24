@@ -28,7 +28,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background-color: #e2dfd0">
+      <v-main style="background-color: #e2dfd0; min-height: 100vh">
         <v-container>
           <!-- Search Bar -->
           <v-text-field
