@@ -20,32 +20,32 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      
+
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView,
-      
+
     },
     {
       path: '/home',
       name: 'home',
       component: HomeView,
-      
+
     },
     {
       path: '/dishes',
       name: 'dishes',
       component: DishesView,
-      
+
     },
   ],
 })
 router.beforeEach(async (to) => {
   const isLoggedIn = await isAuthenticated()
 
-  
+
 if (to.name === '') {
   return isLoggedIn ? { name: 'home' } : { name: 'login' }
 }
