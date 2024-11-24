@@ -13,7 +13,7 @@ const authStore = useAuthUserStore()
 
 // Load Variables
 const formAction = ref({
-  ...formActionDefault,
+  ...formActionDefault
 })
 
 // Logout Functionality
@@ -43,7 +43,7 @@ const onLogout = async () => {
     <template #activator="{ props }">
       <v-btn icon v-bind="props">
         <v-avatar
-          v-if="authStore.userData && authStore.userData.image_url"
+          v-if="authStore.userData.image_url"
           :image="authStore.userData.image_url"
           color="grey-darken-3"
           size="large"
@@ -52,7 +52,7 @@ const onLogout = async () => {
 
         <v-avatar v-else color="grey-darken-3" size="large">
           <span class="text-h5">
-            {{ getAvatarText(authStore.userData?.firstname || 'User') }}
+            {{ getAvatarText(authStore.userData.firstname + ' ' + authStore.userData.lastname) }}
           </span>
         </v-avatar>
       </v-btn>
@@ -72,7 +72,8 @@ const onLogout = async () => {
                 :image="authStore.userData.image_url"
                 color="grey-darken-3"
                 size="large"
-              ></v-avatar>
+              >
+              </v-avatar>
 
               <v-avatar v-else color="grey-darken-3" size="large">
                 <span class="text-h5">
