@@ -71,6 +71,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   right: 16px;
   top: 75px;
   width: 30%; /* Adjust the width as needed */
+  background-color: #DADADA;
 }
 .title-text {
   margin-top: auto;
