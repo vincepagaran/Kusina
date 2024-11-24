@@ -45,7 +45,8 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const isLoggedIn = await isAuthenticated()
 
-if (to.name === 'dash') {
+  
+if (to.name === '') {
   return isLoggedIn ? { name: 'home' } : { name: 'login' }
 }
 
@@ -56,11 +57,6 @@ if (isLoggedIn && (to.name === 'login' || to.name === 'register')) {
 if (!isLoggedIn && to.path.startsWith ('/system')){
   return {name: 'login'}
 }
-
-
-
-
-
 
 })
 

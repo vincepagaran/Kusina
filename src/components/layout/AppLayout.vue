@@ -1,4 +1,4 @@
-<!-- <script setup>
+<script setup>
 // import BottomNavigation from '@/components/layout/navigation/BottomNavigation.vue'
 // import ProfileHeaderNavigation from './ProfileHeaderNavigation.vue'
 import { useAuthUserStore } from '@/stores/authUser'
@@ -93,4 +93,4 @@ onMounted(() => {
       <BottomNavigation v-else-if="isMobileLogged" :theme="theme"></BottomNavigation>
     </v-app>
   </v-responsive>
-</template> -->
+</template>
