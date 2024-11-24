@@ -2,7 +2,7 @@
 import { supabase, formActionDefault } from '@/utils/supabase'
 import { getAvatarText } from '@/utils/helpers'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuthUserStore } from '@/stores/authUser'
 
 // Utilize pre-defined vue functions
@@ -16,26 +16,58 @@ const formAction = ref({
   ...formActionDefault,
 })
 
+// User data object to display information
+const userData = ref({
+  initials: ' ',
+  email: ' ',
+  fullname: ' ',
+})
+
+// Function to get user information
+const getUser = async () => {
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) throw error
+
+    const metadata = data.user?.user_metadata || {}
+
+    userData.value.email = data.user?.email || 'No email provided'
+    userData.value.fullname =
+      (metadata.firstname || 'User') + ' ' + (metadata.lastname || '')
+    userData.value.initials = getAvatarText(userData.value.fullname)
+  } catch (err) {
+    console.error('Error fetching user:', err)
+    userData.value = {
+      initials: 'G',
+      email: 'No email provided',
+      fullname: 'Guest',
+    }
+  }
+}
+
 // Logout Functionality
 const onLogout = async () => {
-  /// Reset Form Action utils; Turn on processing at the same time
   formAction.value = { ...formActionDefault, formProcess: true }
 
-  // Get supabase logout functionality
-  const { error } = await supabase.auth.signOut()
-  if (error) {
-    console.error('Error during logout:', error)
-    return
-  }
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
 
-  formAction.value.formProcess = false
-  // Reset State
-  setTimeout(() => {
-    authStore.$reset()
-  }, 2500)
-  // Redirect to homepage
-  router.replace('/')
+    formAction.value.formProcess = false
+    setTimeout(() => {
+      authStore.$reset()
+    }, 2500)
+    router.replace('/')
+  } catch (err) {
+    console.error('Error during logout:', err)
+    formAction.value.formProcess = false
+  }
 }
+
+// Fetch user information when the component mounts
+onMounted(() => {
+  getUser()
+})
 </script>
 
 <template>
@@ -43,17 +75,13 @@ const onLogout = async () => {
     <template #activator="{ props }">
       <v-btn icon v-bind="props">
         <v-avatar
-          v-if="authStore.userData && authStore.userData.image_url"
+          v-if="authStore.userData?.image_url"
           :image="authStore.userData.image_url"
           color="grey-darken-3"
           size="large"
-        >
-        </v-avatar>
-
+        ></v-avatar>
         <v-avatar v-else color="grey-darken-3" size="large">
-          <span class="text-h5">
-            {{ getAvatarText(authStore.userData?.firstname || 'User') }}
-          </span>
+          <span class="text-h5">{{ userData.initials }}</span>
         </v-avatar>
       </v-btn>
     </template>
@@ -61,34 +89,11 @@ const onLogout = async () => {
     <v-card class="mt-1">
       <v-card-text>
         <v-list>
-          <v-list-item
-            v-if="authStore.userData && authStore.userData.email"
-            :subtitle="authStore.userData.email"
-            :title="authStore.userData.firstname + ' ' + authStore.userData.lastname"
-          >
+          <v-list-item :title="userData.fullname" :subtitle="userData.email">
             <template #prepend>
-              <v-avatar
-                v-if="authStore.userData.image_url"
-                :image="authStore.userData.image_url"
-                color="grey-darken-3"
-                size="large"
-              ></v-avatar>
-
+              <v-avatar v-if="authStore.userData?.image_url" :image="authStore.userData.image_url" color="grey-darken-3" size="large"></v-avatar>
               <v-avatar v-else color="grey-darken-3" size="large">
-                <span class="text-h5">
-                  {{
-                    getAvatarText(authStore.userData.firstname + ' ' + authStore.userData.lastname)
-                  }}
-                </span>
-              </v-avatar>
-            </template>
-          </v-list-item>
-
-          <!-- Fallback if userData is null -->
-          <v-list-item v-else :title="'Guest'" :subtitle="'No email provided'">
-            <template #prepend>
-              <v-avatar color="grey-darken-3" size="large">
-                <span class="text-h5">G</span>
+                <span class="text-h5">{{ userData.initials }}</span>
               </v-avatar>
             </template>
           </v-list-item>

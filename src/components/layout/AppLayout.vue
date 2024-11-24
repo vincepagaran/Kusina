@@ -60,7 +60,7 @@ onMounted(()=> {
     <!-- Navigation Drawer -->
     <v-navigation-drawer v-model="drawer" expand-on-hover rail app style="background-color: #404258; color: #E2DFD0;">
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
+        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/home')"></v-list-item>
         <v-list-item prepend-icon="mdi-history" title="Recent Recipes" @click="router.push('/recentrecipes')"></v-list-item>
         <v-list-item prepend-icon="mdi-checkbox-marked-circle-outline" title="Finished Recipes" @click="router.push('/finishedrecipes')"></v-list-item>
         <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" @click="router.push('/dishes')"></v-list-item>
