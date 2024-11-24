@@ -1,96 +1,82 @@
 <script setup>
-// import BottomNavigation from '@/components/layout/navigation/BottomNavigation.vue'
-// import ProfileHeaderNavigation from './ProfileHeaderNavigation.vue'
-import { useAuthUserStore } from '@/stores/authUser'
-import { onMounted, ref } from 'vue'
-import { useDisplay } from 'vuetify'
+import { ref, onMounted } from 'vue';
+import { isAuthenticated, supabase } from '@/utils/supabase';
+import { useRouter } from 'vue-router';
+import ProfileHeader from './ProfileHeader.vue'
 
-const props = defineProps(['isWithAppBarNavIcon'])
-
-const emit = defineEmits(['isDrawerVisible', 'theme'])
-
-// Utilize pre-defined vue functions
-const { xs, sm, mobile } = useDisplay()
-
-// Use Pinia Store
-const authStore = useAuthUserStore()
-
-// Load Variables
+const router = useRouter()
+const user = ref(false)
 const isLoggedIn = ref(false)
-const isMobileLogged = ref(false)
-const isDesktop = ref(false)
-const theme = ref(localStorage.getItem('theme') ?? 'light')
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false)
 
-//  Toggle Theme
-const onToggleTheme = () => {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-  localStorage.setItem('theme', theme.value)
-  emit('theme', theme.value)
-}
+// Fetch user on mount
+onMounted(async () => {
+  const { data: currentUser, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Error fetching user:', error.message);
+    router.replace('/login'); // Redirect to login if error occurs
+  } else if (!currentUser) {
+    router.replace('/login'); // Redirect if no user is logged in
+  } else {
+    user.value = currentUser.user;
+  }
+});
 
-// Get Authentication status from supabase
+// Logout functionality
+const logout = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('Logout failed:', error.message);
+  } else {
+    router.replace('/login'); // Redirect to login after logout
+  }
+};
+
 const getLoggedStatus = async () => {
-  isLoggedIn.value = await authStore.isAuthenticated()
-
-  isMobileLogged.value = mobile.value && isLoggedIn.value
-  isDesktop.value = !mobile.value && (isLoggedIn.value || !isLoggedIn.value)
+  isLoggedIn.value = await isAuthenticated()
 }
 
-// Load Functions during component rendering
-onMounted(() => {
+drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
+
+onMounted(()=> {
   getLoggedStatus()
 })
 </script>
 
 <template>
-  <v-responsive>
-    <v-app :theme="theme">
-      <v-app-bar class="px-3" :color="theme === 'light' ? 'red-lighten-2' : 'red-darken-4'" border>
-        <v-app-bar-nav-icon
-          v-if="props.isWithAppBarNavIcon"
-          icon="mdi-menu"
-          :theme="theme"
-          @click="emit('isDrawerVisible')"
-        >
-        </v-app-bar-nav-icon>
+  <v-app>
+    <!-- Navbar -->
+    <v-app-bar style="background-color: #404258; color: #E2DFD0;" app>
+      <v-btn icon @click="drawer = !drawer">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
+      <v-toolbar-title>
+        <v-img src="/pics/logo.png" alt="Logo" width="50" class="mr-3"></v-img>
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <ProfileHeader v-if="isLoggedIn"></ProfileHeader>
+    </v-app-bar>
 
-        <v-app-bar-title>
-          <v-img src="/images/logo-shop.png" :width="xs ? '100%' : sm ? '40%' : '14%'"></v-img>
-        </v-app-bar-title>
+    <!-- Navigation Drawer -->
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail app style="background-color: #404258; color: #E2DFD0;">
+      <v-list density="compact" nav>
+        <v-list-item prepend-icon="mdi-home" title="Home" @click="router.push('/')"></v-list-item>
+        <v-list-item prepend-icon="mdi-history" title="Recent Recipes" @click="router.push('/recentrecipes')"></v-list-item>
+        <v-list-item prepend-icon="mdi-checkbox-marked-circle-outline" title="Finished Recipes" @click="router.push('/finishedrecipes')"></v-list-item>
+        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" @click="router.push('/dishes')"></v-list-item>
+        <v-list-item prepend-icon="mdi-logout" title="Logout" @click="logout"></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
-        <v-spacer></v-spacer>
+    <!-- Main Content -->
+    <v-main>
+      <v-slot></v-slot>
+    </v-main>
 
-        <v-btn
-          class="me-2"
-          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          variant="elevated"
-          slim
-          @click="onToggleTheme"
-        ></v-btn>
-
-        <ProfileHeaderNavigation v-if="isLoggedIn"></ProfileHeaderNavigation>
-      </v-app-bar>
-
-      <slot name="navigation"></slot>
-
-      <v-main>
-        <slot name="content"></slot>
-      </v-main>
-
-      <v-footer
-        v-if="!isMobileLogged || isDesktop"
-        class="font-weight-bold"
-        :class="mobile ? 'text-caption' : ''"
-        :color="theme === 'light' ? 'red-lighten-2' : 'red-darken-4'"
-        border
-        app
-      >
-        <div :class="mobile ? 'w-100 text-center' : ''">
-          Copyright © 2024 - Shirlix Meatshop | All Rights Reserved
-        </div>
-      </v-footer>
-
-      <BottomNavigation v-else-if="isMobileLogged" :theme="theme"></BottomNavigation>
-    </v-app>
-  </v-responsive>
+    <!-- Footer -->
+    <v-footer app style="background-color: #404258; color: #E2DFD0;">
+      <v-col class="text-center">© {{ new Date().getFullYear() }} Recipe Application</v-col>
+    </v-footer>
+  </v-app>
 </template>
+
