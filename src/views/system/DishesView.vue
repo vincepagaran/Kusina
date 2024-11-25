@@ -73,7 +73,7 @@ const searchRecipes = async () => {
 const viewDetails = async (recipeId) => {
   loading.value = true;
   try {
-    const response = await axios.get(https://api.spoonacular.com/recipes/${recipeId}/information, {
+    const response = await axios.get('https://api.spoonacular.com/recipes/${recipeId}/information', {
       params: {
         apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
       },
