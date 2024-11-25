@@ -1,58 +1,91 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import { supabase } from '@/utils/supabase'
-import { useRouter } from 'vue-router'
-import AppLayout from '@/components/layout/AppLayout.vue'
+import { ref, onMounted, watch } from 'vue';
+import axios from 'axios';
+import { supabase } from '@/utils/supabase';
+import { useRouter } from 'vue-router';
+import AppLayout from '@/components/layout/AppLayout.vue';
 
-const router = useRouter()
-const user = ref(null)
+const router = useRouter();
+const user = ref(null);
+
 // State variables
-const recipes = ref([]) // Stores the fetched recipes
-const loading = ref(false) // Indicates loading state
-
-const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
+const recipes = ref([]); // Stores the fetched recipes
+const loading = ref(false); // Indicates loading state
+const searchQuery = ref(''); // Stores the user's search input
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false); // Load state from localStorage
 
 onMounted(async () => {
-  const { data: currentUser, error } = await supabase.auth.getUser()
+  const { data: currentUser, error } = await supabase.auth.getUser();
   if (error) {
-    console.error('Error fetching user:', error.message)
-    router.replace('/login') // Redirect to login if there's an error
+    console.error('Error fetching user:', error.message);
+    router.replace('/login'); // Redirect to login if there's an error
   } else if (!currentUser) {
-    router.replace('/login') // Redirect to login if no user is logged in
+    router.replace('/login'); // Redirect to login if no user is logged in
   } else {
-    user.value = currentUser.user
+    user.value = currentUser.user;
   }
-})
+});
 
 // Fetch recipes from the API
 const fetchRecipes = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const response = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
         apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
-    })
-    recipes.value = response.data.recipes
+    });
+    recipes.value = response.data.recipes;
   } catch (error) {
-    console.error('Error fetching recipes:', error)
+    console.error('Error fetching recipes:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
+
+// Search recipes based on the query
+const searchRecipes = async () => {
+  if (!searchQuery.value) {
+    await fetchRecipes(); // Fallback to random recipes if no search query
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
+      params: {
+        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        query: searchQuery.value,
+        number: 10, // Fetch 10 recipes
+      },
+    });
+    recipes.value = response.data.results; // Use the `results` array for search API
+  } catch (error) {
+    console.error('Error searching recipes:', error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 // Handle viewing recipe details
 const viewDetails = (recipeId) => {
-  alert(`View details for recipe ID: ${recipeId}`)
-}
+  alert(`View details for recipe ID: ${recipeId}`);
+};
+
+// Watch searchQuery and trigger search automatically (optional)
+watch(searchQuery, (newQuery) => {
+  if (!newQuery) {
+    fetchRecipes();
+  }
+});
 
 // Fetch data when the component is mounted
 onMounted(fetchRecipes)
 
 // Watch and save drawer state
 drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
+
 </script>
 
 <template>
@@ -71,6 +104,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
             hide-details
             class="search-bar"
             style="margin-bottom: 16px"
+            @keyup.enter="searchRecipes"
           ></v-text-field>
 
           <!-- Title -->
