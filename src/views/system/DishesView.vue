@@ -1,11 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import { supabase } from '@/utils/supabase'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 
 const router = useRouter()
 const user = ref(null)
+// State variables
+const recipes = ref([]) // Stores the fetched recipes
+const loading = ref(false) // Indicates loading state
+
 const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
 
 onMounted(async () => {
@@ -19,6 +24,35 @@ onMounted(async () => {
     user.value = currentUser.user
   }
 })
+
+// Fetch recipes from the API
+const fetchRecipes = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get(
+      'https://api.spoonacular.com/recipes/random?apiKey=e7bbe0e97c144ffd86e6ec26e750b37e',
+      {
+        params: {
+          apiKey: 'your_api_key_here', // Replace with your API key
+          number: 10, // Fetch 10 recipes
+        },
+      },
+    )
+    recipes.value = response.data.recipes
+  } catch (error) {
+    console.error('Error fetching recipes:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Handle viewing recipe details
+const viewDetails = (recipeId) => {
+  alert(`View details for recipe ID: ${recipeId}`)
+}
+
+// Fetch data when the component is mounted
+onMounted(fetchRecipes)
 
 // Watch and save drawer state
 drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
@@ -47,6 +81,33 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
             What do you want to make?
           </h1>
 
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <h1>Food Recipes</h1>
+              </v-col>
+
+              <!-- Loading Spinner -->
+              <v-col cols="12" v-if="loading">
+                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              </v-col>
+
+              <!-- Display Recipes -->
+              <v-col v-for="recipe in recipes" :key="recipe.id" cols="12" sm="6" md="4">
+                <v-card>
+                  <v-img :src="recipe.image" height="200px"></v-img>
+                  <v-card-title>{{ recipe.title }}</v-card-title>
+                  <v-card-text>
+                    <p>Cook Time: {{ recipe.cookTime }}</p>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn color="primary" @click="viewDetails(recipe.id)">View Details</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+
           <!-- Categories -->
           <v-row class="mt-4">
             <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
@@ -71,7 +132,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   right: 16px;
   top: 75px;
   width: 30%; /* Adjust the width as needed */
-  background-color: #DADADA;
+  background-color: #dadada;
 }
 .title-text {
   margin-top: auto;
