@@ -29,15 +29,12 @@ onMounted(async () => {
 const fetchRecipes = async () => {
   loading.value = true
   try {
-    const response = await axios.get(
-      'https://api.spoonacular.com/recipes/random?apiKey=e7bbe0e97c144ffd86e6ec26e750b37e',
-      {
-        params: {
-          apiKey: 'your_api_key_here', // Replace with your API key
-          number: 10, // Fetch 10 recipes
-        },
+    const response = await axios.get('https://api.spoonacular.com/recipes/random', {
+      params: {
+        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        number: 10, // Fetch 10 recipes
       },
-    )
+    })
     recipes.value = response.data.recipes
   } catch (error) {
     console.error('Error fetching recipes:', error)
