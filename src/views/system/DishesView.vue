@@ -171,3 +171,25 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </AppLayout>
   </v-app>
 </template>
+
+<style>
+.search-bar {
+  position: absolute;
+  right: 16px;
+  top: 75px;
+  width: 30%; /* Adjust the width as needed */
+  background-color: #dadada;
+}
+.title-text {
+  margin-top: auto;
+}
+.category-card {
+  transition: 0.3s;
+}
+.category-card:hover {
+  transform: scale(1.05);
+}
+.category-image {
+  height: 200px;
+}
+</style>
