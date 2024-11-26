@@ -10,6 +10,7 @@ const user = ref(null);
 
 // State variables
 const recipes = ref([]); // Stores the fetched recipes
+const selectedRecipe = ref(null); // Stores detailed recipe information
 const loading = ref(false); // Indicates loading state
 const searchQuery = ref(''); // Stores the user's search input
 const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false); // Load state from localStorage
@@ -60,7 +61,7 @@ const searchRecipes = async () => {
         number: 10, // Fetch 10 recipes
       },
     });
-    recipes.value = response.data.results; // Use the `results` array for search API
+    recipes.value = response.data.results; // Use the results array for search API
   } catch (error) {
     console.error('Error searching recipes:', error);
   } finally {
@@ -68,9 +69,21 @@ const searchRecipes = async () => {
   }
 };
 
-// Handle viewing recipe details
-const viewDetails = (recipeId) => {
-  alert(`View details for recipe ID: ${recipeId}`);
+// Fetch recipe details by ID
+const viewDetails = async (recipeId) => {
+  loading.value = true;
+  try {
+    const response = await axios.get('https://api.spoonacular.com/recipes/${recipeId}/information', {
+      params: {
+        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+      },
+    });
+    selectedRecipe.value = response.data;
+  } catch (error) {
+    console.error('Error fetching recipe details:', error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 // Watch searchQuery and trigger search automatically (optional)
@@ -81,7 +94,7 @@ watch(searchQuery, (newQuery) => {
 });
 
 // Fetch data when the component is mounted
-onMounted(fetchRecipes)
+onMounted(fetchRecipes);
 
 // Watch and save drawer state
 drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
@@ -128,9 +141,6 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
                 <v-card>
                   <v-img :src="recipe.image" height="200px"></v-img>
                   <v-card-title>{{ recipe.title }}</v-card-title>
-                  <v-card-text>
-                    <p>Cook Time: {{ recipe.cookTime }}</p>
-                  </v-card-text>
                   <v-card-actions>
                     <v-btn color="primary" @click="viewDetails(recipe.id)">View Details</v-btn>
                   </v-card-actions>
@@ -139,18 +149,23 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
             </v-row>
           </v-container>
 
-          <!-- Categories -->
-          <v-row class="mt-4">
-            <v-col v-for="(category, index) in categories" :key="index" cols="12" sm="3">
-              <v-card class="category-card">
-                <v-img :src="category.img" alt="Category Image" class="category-image"></v-img>
-                <v-card-title class="text-center">{{ category.title }}</v-card-title>
-                <v-card-actions class="justify-center">
-                  <v-btn color="primary" @click="viewCategory(category.title)">View</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
+          <!-- Recipe Details Modal -->
+          <v-dialog v-model="selectedRecipe" max-width="600px">
+            <v-card>
+              <v-card-title>{{ selectedRecipe?.title }}</v-card-title>
+              <v-img :src="selectedRecipe?.image" height="200px"></v-img>
+              <v-card-text>
+                <p><strong>Summary:</strong> {{ selectedRecipe?.summary }}</p>
+                <p><strong>Cook Time:</strong> {{ selectedRecipe?.readyInMinutes }} minutes</p>
+                <p><strong>Servings:</strong> {{ selectedRecipe?.servings }}</p>
+                <p><strong>Instructions:</strong></p>
+                <div v-html="selectedRecipe?.instructions"></div>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn color="primary" text @click="selectedRecipe = null">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-container>
       </v-main>
     </AppLayout>
