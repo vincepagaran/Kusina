@@ -1,84 +1,132 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { supabase } from '@/utils/supabase';
-import { useRouter } from 'vue-router';
-import AppLayout from '@/components/layout/AppLayout.vue';
+import { ref, onMounted, watch } from 'vue'
+import axios from 'axios'
+import { supabase } from '@/utils/supabase'
+import { useRouter } from 'vue-router'
+import AppLayout from '@/components/layout/AppLayout.vue'
 
-const router = useRouter();
-const user = ref(null);
+const router = useRouter()
+const user = ref(null)
 
 // State variables
-const recipes = ref([]); // Stores the fetched recipes
-const selectedRecipe = ref(null); // Stores detailed recipe information
-const loading = ref(false); // Indicates loading state
-const searchQuery = ref(''); // Stores the user's search input
-const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false); // Load state from localStorage
+const recipes = ref([]) // Stores the fetched recipes
+const selectedRecipe = ref(null) // Stores detailed recipe information
+const loading = ref(false) // Indicates loading state
+const searchQuery = ref('') // Stores the user's search input
+const dialog = ref(false)
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
 
 onMounted(async () => {
-  const { data: currentUser, error } = await supabase.auth.getUser();
+  const { data: currentUser, error } = await supabase.auth.getUser()
   if (error) {
-    console.error('Error fetching user:', error.message);
-    router.replace('/login'); // Redirect to login if there's an error
+    console.error('Error fetching user:', error.message)
+    router.replace('/login') // Redirect to login if there's an error
   } else if (!currentUser) {
-    router.replace('/login'); // Redirect to login if no user is logged in
+    router.replace('/login') // Redirect to login if no user is logged in
   } else {
-    user.value = currentUser.user;
+    user.value = currentUser.user
   }
-});
+})
 
-// Fetch recipes from the API
-const fetchRecipes = async () => {
-  loading.value = true;
+// Fetch recipes and their details
+const fetchRecipesWithDetails = async () => {
+  loading.value = true
+
   try {
-    const response = await axios.get('https://api.spoonacular.com/recipes/random', {
+    const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
-    });
-    recipes.value = response.data.recipes;
+    })
+
+    const randomRecipes = recipeResponse.data.recipes
+
+    // Fetch details for each recipe
+    const recipeDetailsRequests = randomRecipes.map(recipe =>
+      axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
+        params: {
+          apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+        },
+      })
+    )
+
+    const detailedResponses = await Promise.all(recipeDetailsRequests)
+    recipes.value = detailedResponses.map((response) => response.data)
+
+    // Extract recipe details and ingredients
+    const recipeDetails = recipeResponse.data
+    const ingredients = recipeDetails.extendedIngredients.map((ingredient) => ({
+      name: ingredient.name,
+      amount: ingredient.amount,
+      unit: ingredient.unit,
+    }))
+
+    return {
+      title: recipeDetails.title,
+      image: recipeDetails.image,
+      summary: recipeDetails.summary,
+      ingredients,
+      instructions: recipeDetails.instructions,
+    }
+
   } catch (error) {
-    console.error('Error fetching recipes:', error);
+    console.error('Error fetching recipes:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // Search recipes based on the query
 const searchRecipes = async () => {
   if (!searchQuery.value) {
-    await fetchRecipes(); // Fallback to random recipes if no search query
-    return;
+    await fetchRecipesWithDetails() // Fallback to random recipes if no search query
+    return
   }
 
-  loading.value = true;
+  loading.value = true
   try {
     const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
         query: searchQuery.value,
         number: 10, // Fetch 10 recipes
       },
-    });
-    recipes.value = response.data.results; // Use the results array for search API
+    })
+    recipes.value = response.data.results // Use the results array for search API
   } catch (error) {
-    console.error('Error searching recipes:', error);
+    console.error('Error searching recipes:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-// Fetch recipe details by ID
 const viewDetails = async (recipeId) => {
-  loading.value = true;
   try {
-    const response = await axios.get('https://api.spoonacular.com/recipes/${recipeId}/information', {
+    loading.value = true;
+    const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
       },
     });
-    selectedRecipe.value = response.data;
+
+    const recipeDetails = response.data;
+
+    // Extract necessary details and assign to selectedRecipe
+    selectedRecipe.value = {
+      id: recipeDetails.id,
+      title: recipeDetails.title,
+      image: recipeDetails.image,
+      summary: recipeDetails.summary,
+      ingredients: recipeDetails.extendedIngredients.map((ingredient) => ({
+        name: ingredient.name,
+        amount: ingredient.amount,
+        unit: ingredient.unit,
+      })),
+      instructions: recipeDetails.instructions,
+    };
+
+    dialog.value = true; // Open the dialog
   } catch (error) {
     console.error('Error fetching recipe details:', error);
   } finally {
@@ -89,16 +137,20 @@ const viewDetails = async (recipeId) => {
 // Watch searchQuery and trigger search automatically (optional)
 watch(searchQuery, (newQuery) => {
   if (!newQuery) {
-    fetchRecipes();
+    fetchRecipesWithDetails()
   }
-});
+})
+
+// Function to close the dialog
+const closeDialog = () => {
+  selectedRecipe.value = null; // Reset selectedRecipe to close the dialog
+}
 
 // Fetch data when the component is mounted
-onMounted(fetchRecipes);
+onMounted(fetchRecipesWithDetails)
 
 // Watch and save drawer state
 drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
-
 </script>
 
 <template>
@@ -149,20 +201,36 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
             </v-row>
           </v-container>
 
-          <!-- Recipe Details Modal -->
           <v-dialog v-model="selectedRecipe" max-width="600px">
-            <v-card>
-              <v-card-title>{{ selectedRecipe?.title }}</v-card-title>
-              <v-img :src="selectedRecipe?.image" height="200px"></v-img>
+            <v-card v-if="selectedRecipe">
+              <!-- Title -->
+              <v-card-title>{{ selectedRecipe.title }}</v-card-title>
+
+              <!-- Recipe Image -->
+              <v-img :src="selectedRecipe.image" height="200px"></v-img>
+
+              <!-- Recipe Details -->
               <v-card-text>
-                <p><strong>Summary:</strong> {{ selectedRecipe?.summary }}</p>
-                <p><strong>Cook Time:</strong> {{ selectedRecipe?.readyInMinutes }} minutes</p>
-                <p><strong>Servings:</strong> {{ selectedRecipe?.servings }}</p>
+                <!-- Summary -->
+                <p><strong>Summary:</strong></p>
+                <div v-html="selectedRecipe.summary"></div>
+
+                <!-- Ingredients -->
+                <p><strong>Ingredients:</strong></p>
+                <ul>
+                  <li v-for="(ingredient, index) in selectedRecipe.ingredients" :key="index">
+                    {{ ingredient.amount }} {{ ingredient.unit }} of {{ ingredient.name }}
+                  </li>
+                </ul>
+
+                <!-- Instructions -->
                 <p><strong>Instructions:</strong></p>
-                <div v-html="selectedRecipe?.instructions"></div>
+                <div v-html="selectedRecipe.instructions"></div>
               </v-card-text>
+
+              <!-- Actions -->
               <v-card-actions>
-                <v-btn color="primary" text @click="selectedRecipe = null">Close</v-btn>
+                <v-btn color="primary" text @click="closeDialog">Close</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -172,24 +240,103 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   </v-app>
 </template>
 
-<style>
+<style scoped>
+/* General styles */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #e2dfd0;
+}
+
+/* Search Bar Styling */
 .search-bar {
-  position: absolute;
-  right: 16px;
-  top: 75px;
-  width: 30%; /* Adjust the width as needed */
-  background-color: #dadada;
+  position: relative;
+  margin-top: 1%;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Title Styling */
 .title-text {
-  margin-top: auto;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 16px 0;
+  color: #404258;
+  text-align: center;
 }
-.category-card {
-  transition: 0.3s;
+
+/* Recipe Card Styling */
+v-card {
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.category-card:hover {
+
+v-card:hover {
   transform: scale(1.05);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }
-.category-image {
-  height: 200px;
+
+v-img {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Dialog Content */
+v-dialog {
+  border-radius: 12px;
+}
+
+v-card-title {
+  font-weight: bold;
+  color: #333333;
+}
+
+v-card-text {
+  color: #555555;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+li {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Loading Spinner */
+v-progress-circular {
+  display: block;
+  margin: 20px auto;
+}
+
+/* Button Styling */
+v-btn {
+  background-color: #4caf50;
+  color: white;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+v-btn:hover {
+  background-color: #45a045;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .title-text {
+    font-size: 1.8rem;
+  }
+
+  v-card {
+    margin-bottom: 16px;
+  }
 }
 </style>
+
