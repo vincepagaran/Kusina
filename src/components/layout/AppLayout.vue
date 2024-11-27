@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { isAuthenticated, supabase } from '@/utils/supabase';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue'
+import { isAuthenticated, supabase } from '@/utils/supabase'
+import { useRouter } from 'vue-router'
 import ProfileHeader from './ProfileHeader.vue'
 
 const router = useRouter()
@@ -13,14 +13,14 @@ const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false)
 onMounted(async () => {
   const { data: currentUser, error } = await supabase.auth.getUser()
   if (error) {
-    console.error('Error fetching user:', error.message);
-    router.replace('/login'); // Redirect to login if error occurs
+    console.error('Error fetching user:', error.message)
+    router.replace('/login') // Redirect to login if error occurs
   } else if (!currentUser) {
-    router.replace('/login'); // Redirect if no user is logged in
+    router.replace('/login') // Redirect if no user is logged in
   } else {
-    user.value = currentUser.user;
+    user.value = currentUser.user
   }
-});
+})
 
 const getLoggedStatus = async () => {
   isLoggedIn.value = await isAuthenticated()
@@ -28,7 +28,7 @@ const getLoggedStatus = async () => {
 
 drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 
-onMounted(()=> {
+onMounted(() => {
   getLoggedStatus()
 })
 </script>
@@ -58,7 +58,7 @@ onMounted(()=> {
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
+    <v-main style="background-color: #E8F5E9; color: #1D3557;">
       <slot></slot>
     </v-main>
 
