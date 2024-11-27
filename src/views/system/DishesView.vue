@@ -35,7 +35,7 @@ const fetchRecipesWithDetails = async () => {
   try {
     const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
-        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
+        apiKey: '72cb9645733f49f1a07689f962f78c26', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
     })
@@ -46,30 +46,13 @@ const fetchRecipesWithDetails = async () => {
     const recipeDetailsRequests = randomRecipes.map(recipe =>
       axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
         params: {
-          apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
+          apiKey: '72cb9645733f49f1a07689f962f78c26', // Replace with your API key
         },
       })
     )
 
     const detailedResponses = await Promise.all(recipeDetailsRequests)
     recipes.value = detailedResponses.map((response) => response.data)
-
-    // Extract recipe details and ingredients
-    const recipeDetails = recipeResponse.data
-    const ingredients = recipeDetails.extendedIngredients.map((ingredient) => ({
-      name: ingredient.name,
-      amount: ingredient.amount,
-      unit: ingredient.unit,
-    }))
-
-    return {
-      title: recipeDetails.title,
-      image: recipeDetails.image,
-      summary: recipeDetails.summary,
-      ingredients,
-      instructions: recipeDetails.instructions,
-    }
-
   } catch (error) {
     console.error('Error fetching recipes:', error)
   } finally {
@@ -77,6 +60,19 @@ const fetchRecipesWithDetails = async () => {
   }
 }
 
+const addToMenu = (recipe) => {
+  // Retrieve the existing menu items from localStorage
+  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || []
+
+  // Add the new recipe to the array
+  savedMenuItems.push(recipe)
+
+  // Save the updated array back to localStorage
+  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems))
+
+  // Navigate to the "Menu" page
+  router.push({ name: 'menu' })  // No need to pass recipe in the route params
+}
 // Search recipes based on the query
 const searchRecipes = async () => {
   if (!searchQuery.value) {
@@ -88,7 +84,7 @@ const searchRecipes = async () => {
   try {
     const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
       params: {
-        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
+        apiKey: '72cb9645733f49f1a07689f962f78c26', // Replace with your API key
         query: searchQuery.value,
         number: 10, // Fetch 10 recipes
       },
@@ -101,18 +97,17 @@ const searchRecipes = async () => {
   }
 }
 
+// View recipe details
 const viewDetails = async (recipeId) => {
   try {
-    loading.value = true;
+    loading.value = true
     const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
       params: {
-        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
+        apiKey: '72cb9645733f49f1a07689f962f78c26', // Replace with your API key
       },
-    });
+    })
 
-    const recipeDetails = response.data;
-
-    // Extract necessary details and assign to selectedRecipe
+    const recipeDetails = response.data
     selectedRecipe.value = {
       id: recipeDetails.id,
       title: recipeDetails.title,
@@ -124,15 +119,15 @@ const viewDetails = async (recipeId) => {
         unit: ingredient.unit,
       })),
       instructions: recipeDetails.instructions,
-    };
+    }
 
-    dialog.value = true; // Open the dialog
+    dialog.value = true // Open the dialog
   } catch (error) {
-    console.error('Error fetching recipe details:', error);
+    console.error('Error fetching recipe details:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // Watch searchQuery and trigger search automatically (optional)
 watch(searchQuery, (newQuery) => {
@@ -143,14 +138,16 @@ watch(searchQuery, (newQuery) => {
 
 // Function to close the dialog
 const closeDialog = () => {
-  selectedRecipe.value = null; // Reset selectedRecipe to close the dialog
+  selectedRecipe.value = null
 }
 
 // Fetch data when the component is mounted
 onMounted(fetchRecipesWithDetails)
 
 // Watch and save drawer state
-drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
+watch(drawer, (newState) => {
+  localStorage.setItem('drawerState', JSON.stringify(newState))
+})
 </script>
 
 <template>
@@ -201,6 +198,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
             </v-row>
           </v-container>
 
+          <!-- Recipe Details Dialog -->
           <v-dialog v-model="selectedRecipe" max-width="600px">
             <v-card v-if="selectedRecipe">
               <!-- Title -->
@@ -211,11 +209,9 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
 
               <!-- Recipe Details -->
               <v-card-text>
-                <!-- Summary -->
                 <p><strong>Summary:</strong></p>
                 <div v-html="selectedRecipe.summary"></div>
 
-                <!-- Ingredients -->
                 <p><strong>Ingredients:</strong></p>
                 <ul>
                   <li v-for="(ingredient, index) in selectedRecipe.ingredients" :key="index">
@@ -223,7 +219,6 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
                   </li>
                 </ul>
 
-                <!-- Instructions -->
                 <p><strong>Instructions:</strong></p>
                 <div v-html="selectedRecipe.instructions"></div>
               </v-card-text>
@@ -231,6 +226,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
               <!-- Actions -->
               <v-card-actions>
                 <v-btn color="primary" text @click="closeDialog">Close</v-btn>
+                <v-btn color="secondary" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -239,6 +235,8 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
     </AppLayout>
   </v-app>
 </template>
+
+
 
 <style scoped>
 /* General styles */
