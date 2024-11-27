@@ -240,24 +240,103 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   </v-app>
 </template>
 
-<style>
+<style scoped>
+/* General styles */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #e2dfd0;
+}
+
+/* Search Bar Styling */
 .search-bar {
-  position: absolute;
-  right: 16px;
-  top: 75px;
-  width: 30%; /* Adjust the width as needed */
-  background-color: #dadada;
+  position: relative;
+  margin-top: 1%;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Title Styling */
 .title-text {
-  margin-top: auto;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 16px 0;
+  color: #404258;
+  text-align: center;
 }
-.category-card {
-  transition: 0.3s;
+
+/* Recipe Card Styling */
+v-card {
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.category-card:hover {
+
+v-card:hover {
   transform: scale(1.05);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }
-.category-image {
-  height: 200px;
+
+v-img {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Dialog Content */
+v-dialog {
+  border-radius: 12px;
+}
+
+v-card-title {
+  font-weight: bold;
+  color: #333333;
+}
+
+v-card-text {
+  color: #555555;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+li {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Loading Spinner */
+v-progress-circular {
+  display: block;
+  margin: 20px auto;
+}
+
+/* Button Styling */
+v-btn {
+  background-color: #4caf50;
+  color: white;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+v-btn:hover {
+  background-color: #45a045;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .title-text {
+    font-size: 1.8rem;
+  }
+
+  v-card {
+    margin-bottom: 16px;
+  }
 }
 </style>
+
