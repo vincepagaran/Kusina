@@ -35,7 +35,7 @@ const fetchRecipesWithDetails = async () => {
   try {
     const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
     })
@@ -46,7 +46,7 @@ const fetchRecipesWithDetails = async () => {
     const recipeDetailsRequests = randomRecipes.map(recipe =>
       axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
         params: {
-          apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+          apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         },
       })
     )
@@ -88,7 +88,7 @@ const searchRecipes = async () => {
   try {
     const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         query: searchQuery.value,
         number: 10, // Fetch 10 recipes
       },
@@ -106,7 +106,7 @@ const viewDetails = async (recipeId) => {
     loading.value = true;
     const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
       params: {
-        apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
       },
     });
 
