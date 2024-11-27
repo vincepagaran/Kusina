@@ -28,7 +28,7 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background: url(/public/pics/CookingGIF.gif); min-height: 100vh; background-size: cover;">
+      <v-main style="background: url(/pics/CookingGIF.gif); min-height: 100vh; background-size: cover;">
         <v-container class="d-flex justify-start align-start" style="height: 100vh;">
           <!-- Content Section -->
           <v-row class="text-left" align="start" justify="start">
