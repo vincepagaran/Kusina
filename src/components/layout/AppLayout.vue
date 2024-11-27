@@ -36,8 +36,9 @@ onMounted(()=> {
 <template>
   <v-app>
     <!-- Navbar -->
-    <v-app-bar style="background-color: #404258; color: #E2DFD0;" app>
-      <v-btn icon @click="drawer = !drawer">
+    <v-app-bar style="background-color: #558B2F; color: #FFFFFF;" app>
+      <v-btn icon @click="drawer = !drawer" style=" transition: 0.3s;"
+  class="hover-btn">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
       <v-toolbar-title>
@@ -48,24 +49,66 @@ onMounted(()=> {
     </v-app-bar>
 
     <!-- Navigation Drawer -->
-    <v-navigation-drawer v-model="drawer" expand-on-hover rail app style="background-color: #404258; color: #E2DFD0;">
+    <v-navigation-drawer
+      v-model="drawer"
+      expand-on-hover
+      rail
+      app
+      style="background-color: #7CB342; color: #e5e1da;"
+    >
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Home" variant="outlined" @click="router.push('/home')"></v-list-item>
-        <v-list-item prepend-icon="mdi-history" title="Recent Recipes" variant="outlined" @click="router.push('/recentrecipes')"></v-list-item>
-        <v-list-item prepend-icon="mdi-checkbox-marked-circle-outline" title="Finished Recipes" variant="outlined" @click="router.push('/finishedrecipes')"></v-list-item>
-        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" variant="outlined" @click="router.push('/dishes')"></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-home"
+          title="Home"
+          variant="outlined"
+          @click="router.push('/home')"
+          style="color: #F6FCDF;">
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-history"
+          title="Recent Recipes"
+          variant="outlined"
+          @click="router.push('/recentrecipes')"
+          style="color: #F6FCDF;">
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-checkbox-marked-circle-outline"
+          title="Finished Recipes"
+          variant="outlined"
+          @click="router.push('/finishedrecipes')"
+          style="color: #F6FCDF;">
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-food"
+          title="Dishes/Recipes"
+          variant="outlined"
+          @click="router.push('/dishes')"
+          style="color: #F6FCDF;">
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
+    <v-main style="background-color: #E8F5E9; color: #1D3557;">
       <slot></slot>
     </v-main>
 
     <!-- Footer -->
-    <v-footer app style="background-color: #404258; color: #E2DFD0;">
+    <v-footer app style="background-color: #1B5E20; color: #FFFFFF;">
       <v-col class="text-center">© {{ new Date().getFullYear() }} Recipe Application</v-col>
     </v-footer>
   </v-app>
 </template>
+
+<style scoped>
+.hover-btn:hover {
+  background-color: #C9A227; /* Gold background on hover */
+  color: #121212; /* Rich Black icon color on hover */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition effect */
+  border-radius: 50%; /* Optional: Circular button effect on hover */
+}
+</style>
+
+
+
 
