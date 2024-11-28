@@ -79,7 +79,7 @@ const recipe = ref(null) // Will hold the dynamic recipe data
 
 // API URL and key
 const API_URL = 'https://api.spoonacular.com/recipes/random'
-const API_KEY = '72cb9645733f49f1a07689f962f78c26'
+const API_KEY = 'f79e60188f114e95ac5413f96d37d32f'
 
 // Fetch the recipe data from Spoonacular API
 const fetchRecipe = async () => {
