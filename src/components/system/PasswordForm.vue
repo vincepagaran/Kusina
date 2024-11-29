@@ -61,7 +61,7 @@ const changePassword = async () => {
     <!-- Form -->
     <v-form>
       <v-row dense class="text-amber-darken-4">
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="6" style="color: #E2DFD0;">
           <v-text-field
             v-model="passwordForm.currentPassword"
             label="Current Password"
@@ -72,7 +72,7 @@ const changePassword = async () => {
           ></v-text-field>
         </v-col>
 
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="6" style="color: #E2DFD0;">
           <v-text-field
             v-model="passwordForm.newPassword"
             label="New Password"
@@ -83,7 +83,7 @@ const changePassword = async () => {
           ></v-text-field>
         </v-col>
 
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="6" style="color: #E2DFD0;">
           <v-text-field
             v-model="passwordForm.confirmPassword"
             label="Confirm New Password"
