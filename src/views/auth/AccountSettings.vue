@@ -1,6 +1,5 @@
 <script setup>
 import AppLayout from '@/components/layout/AppLayout.vue'
-import SideNavigation from '@/components/layout/SideNavigation.vue'
 import PictureForm from '@/components/system/PictureForm.vue'
 import ProfileForm from '@/components/system/ProfileForm.vue'
 import PasswordForm from '@/components/system/PasswordForm.vue'
@@ -20,10 +19,6 @@ const isDrawerVisible = ref(true)
     :is-with-app-bar-nav-icon="true"
     @is-drawer-visible="isDrawerVisible = !isDrawerVisible"
   >
-    <template #navigation>
-      <SideNavigation :is-drawer-visible="isDrawerVisible"></SideNavigation>
-    </template>
-
     <template #content>
       <v-container>
         <v-card class="mb-5 fade-in">
