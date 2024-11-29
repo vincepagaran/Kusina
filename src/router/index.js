@@ -6,6 +6,7 @@ import RegisterView from '@/views/auth/RegisterView.vue'
 import DishesView from '@/views/system/DishesView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import MenuDishes from '@/views/system/MenuDishes.vue'
+import AccountSettings from '@/components/system/AccountSettings.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -43,6 +44,12 @@ const router = createRouter({
       name: 'menu',
       component: MenuDishes,
     },
+    {
+      path: '/account/settings',
+      name: 'accountsettings',
+      component: AccountSettings,
+      meta: { requiresAuth: true },
+    }
   ],
 })
 router.beforeEach(async (to) => {
