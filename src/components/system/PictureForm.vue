@@ -88,9 +88,9 @@ const onFormSubmit = () => {
     :form-error-message="formAction.formErrorMessage"
   ></AlertNotification>
 
-  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
+  <v-form ref="refVForm" @submit.prevent="onFormSubmit" >
     <v-row class="text-amber-darken-4 mt-2">
-      <v-col cols="12" md="5">
+      <v-col cols="12" md="5" >
         <v-img
           width="55%"
           class="mx-auto rounded-circle"
@@ -103,7 +103,7 @@ const onFormSubmit = () => {
         </v-img>
       </v-col>
 
-      <v-col cols="12" md="7">
+      <v-col cols="12" md="7" style="color: #E2DFD0;">
         <v-file-input
           class="mt-5"
           :rules="[requiredValidator, imageValidator]"

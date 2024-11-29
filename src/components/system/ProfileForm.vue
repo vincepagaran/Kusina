@@ -77,7 +77,7 @@ fetchUserDetails()
 <template>
   <v-form>
     <v-row dense class="text-amber-darken-4">
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="4" style="color: #E2DFD0;">
         <v-text-field
           v-model="userForm.firstname"
           label="First Name"
@@ -87,7 +87,7 @@ fetchUserDetails()
         ></v-text-field>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="4" style="color: #E2DFD0;">
         <v-text-field
           v-model="userForm.lastname"
           label="Last Name"
@@ -97,7 +97,7 @@ fetchUserDetails()
         ></v-text-field>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="4" style="color: #E2DFD0;">
         <v-text-field
           v-model="userForm.email"
           label="Email Address"
