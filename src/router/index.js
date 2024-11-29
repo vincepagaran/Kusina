@@ -4,6 +4,7 @@ import HomeView from '@/views/system/HomeView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import DishesView from '@/views/system/DishesView.vue'
+import AccountSettings from '@/views/auth/AccountSettings.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 // import { useAuthUserStore } from '@/stores/authUser'
@@ -36,6 +37,11 @@ const router = createRouter({
       path: '/dishes',
       name: 'dishes',
       component: DishesView,
+    },
+    {
+      path: '/menu',
+      name: 'menu',
+      component: MenuDishes,
     },
   ],
 })

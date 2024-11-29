@@ -1,4 +1,4 @@
-<!-- <script setup>
+ <script setup>
 const props = defineProps(['formSuccessMessage, formErrorMessage'])
 </script>
 
@@ -22,4 +22,4 @@ const props = defineProps(['formSuccessMessage, formErrorMessage'])
   border="start"
   closable
   ></v-alert>
-</template> -->
+</template> 

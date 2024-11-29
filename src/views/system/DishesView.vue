@@ -154,7 +154,7 @@ watch(drawer, (newState) => {
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background-color: #e2dfd0; min-height: 100vh">
+      <v-main style="background: url(/pics/DishesBG.gif) no-repeat center center fixed; min-height: 100vh; background-size: cover;">
         <v-container>
           <!-- Search Bar -->
           <v-text-field
@@ -170,14 +170,14 @@ watch(drawer, (newState) => {
           ></v-text-field>
 
           <!-- Title -->
-          <h1 class="text-center title-text" style="background-color: #e2dfd0; color: #404258">
+          <h1 class="text-center title-text" style=" color: #e2dfd0">
             What do you want to make?
           </h1>
 
           <v-container>
             <v-row>
               <v-col cols="12">
-                <h1>Food Recipes</h1>
+                <h1 style="color: #e2dfd0;">Food Recipes</h1>
               </v-col>
 
               <!-- Loading Spinner -->
@@ -254,7 +254,8 @@ body {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  background-color: #ffffff;
+  background-color: #e2dfd0;
+  color: #404258;
   border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
