@@ -10,7 +10,9 @@ import { useAuthUserStore } from '@/stores/authUser';
 const authStore = useAuthUserStore();
 
 onMounted(async () => {
+  if (!authStore.userData) {
   await authStore.getUserInformation();
+  }
 });
 </script>
 
