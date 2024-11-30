@@ -15,9 +15,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  
+
   <AppLayout >
-    <v-main style="background: url(/pics/bg3.jpg); background-size: cover;" > 
+    <v-main>
     <v-container class="py-5"  >
       <!-- Breadcrumbs -->
       <v-card class="mb-5" style="background: rgba(64, 64, 64, 0.15); backdrop-filter: blur(25px); box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, 0.15);

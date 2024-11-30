@@ -35,7 +35,7 @@ const fetchRecipesWithDetails = async () => {
   try {
     const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
     })
@@ -46,7 +46,7 @@ const fetchRecipesWithDetails = async () => {
     const recipeDetailsRequests = randomRecipes.map(recipe =>
       axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
         params: {
-          apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+          apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         },
       })
     )
@@ -84,7 +84,7 @@ const searchRecipes = async () => {
   try {
     const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
       params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
         query: searchQuery.value,
         number: 10, // Fetch 10 recipes
       },
@@ -103,7 +103,7 @@ const viewDetails = async (recipeId) => {
     loading.value = true
     const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
       params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+        apiKey: '0ac701cbbe4d4121bb3f2aeb0262f43d', // Replace with your API key
       },
     })
 
@@ -154,7 +154,7 @@ watch(drawer, (newState) => {
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background: url(/pics/DishesBG.gif) no-repeat center center fixed; min-height: 100vh; background-size: cover;">
+      <v-main>
         <v-container>
           <!-- Search Bar -->
           <v-text-field
@@ -181,7 +181,7 @@ watch(drawer, (newState) => {
               </v-col>
 
               <!-- Loading Spinner -->
-              <v-col cols="12" v-if="loading">
+              <v-col cols="12" v-if="loading" style=" height: 100px;">
                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
               </v-col>
 
@@ -242,99 +242,158 @@ watch(drawer, (newState) => {
 /* General styles */
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: #e2dfd0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
 }
 
 /* Search Bar Styling */
 .search-bar {
-  position: relative;
-  margin-top: 1%;
+  margin-top: none;
   width: 100%;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  background-color: #e2dfd0;
-  color: #404258;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  color: #1B1833;
+  border-radius: 30px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.search-bar:hover {
+  transform: scale(1.02);
 }
 
 /* Title Styling */
 .title-text {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
-  margin: 16px 0;
-  color: #404258;
+  margin: 20px 0;
+  color: #555555;
   text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Recipe Card Styling */
-v-card {
-  border-radius: 12px;
+.v-card {
+  border-radius: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  height: 50vh;
+  background-color: #DCEDC8;
 }
 
-v-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+.v-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-v-img {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+.v-img {
+  margin-top: 10px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  object-fit: cover;
 }
 
-/* Dialog Content */
-v-dialog {
-  border-radius: 12px;
-}
-
-v-card-title {
+.v-card-title {
+  font-size: 1.25rem;
   font-weight: bold;
   color: #333333;
 }
 
-v-card-text {
+.v-card-actions {
+  padding: 10px;
+  justify-content: space-between;
+}
+
+/* Dialog Content */
+.v-dialog {
+  border-radius: 15px;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.v-card-title {
+  font-weight: bold;
+  font-size: 1.5rem;
   color: #555555;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.v-card-text {
+  color: #666666;
 }
 
 ul {
   list-style-type: disc;
   padding-left: 20px;
+  color: #444444;
 }
 
 li {
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Loading Spinner */
-v-progress-circular {
+.v-progress-circular {
   display: block;
   margin: 20px auto;
 }
 
 /* Button Styling */
-v-btn {
-  background-color: #4caf50;
-  color: white;
-  border-radius: 20px;
-  transition: background-color 0.3s ease;
+.v-btn {
+  background-color: #ff6f61;
+  color: #ffffff;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-v-btn:hover {
+.v-btn:hover {
+  background-color: #e65550;
+  transform: translateY(-2px);
+}
+
+/* Dialog Buttons */
+.v-btn.secondary {
+  background-color: #4caf50;
+}
+
+.v-btn.secondary:hover {
   background-color: #45a045;
 }
 
 /* Responsive Design */
 @media (max-width: 600px) {
   .title-text {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
-  v-card {
+  .v-card {
     margin-bottom: 16px;
+  }
+}
+/* Additional Animations */
+.v-card:hover,
+.v-btn:hover {
+  cursor: pointer;
+}
+
+.v-card {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

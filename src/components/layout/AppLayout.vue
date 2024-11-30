@@ -34,9 +34,10 @@ onMounted(() => {
 </script>
 
 <template>
+   <v-responsive max-height="auto">
   <v-app>
     <!-- Navbar -->
-    <v-app-bar style="background-color: #404258; color: #E2DFD0;" app>
+    <v-app-bar style="background-color: transparent; backdrop-filter: blur(25px); color: #F6FCDF;" app>
       <v-btn icon @click="drawer = !drawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
@@ -48,24 +49,53 @@ onMounted(() => {
     </v-app-bar>
 
     <!-- Navigation Drawer -->
-    <v-navigation-drawer v-model="drawer" expand-on-hover rail app style="background-color: #404258; color: #E2DFD0;">
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail app style="background-color: transparent; backdrop-filter: blur(25px); color: #1B1833;">
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Home" variant="outlined" @click="router.push('/home')"></v-list-item>
-        <v-list-item prepend-icon="mdi-history" title="Recent Recipes" variant="outlined" @click="router.push('/recentrecipes')"></v-list-item>
-        <v-list-item prepend-icon="mdi-checkbox-marked-circle-outline" title="Finished Recipes" variant="outlined" @click="router.push('/finishedrecipes')"></v-list-item>
-        <v-list-item prepend-icon="mdi-food" title="Dishes/Recipes" variant="outlined" @click="router.push('/dishes')"></v-list-item>
-      </v-list>
+  <v-list-item
+    prepend-icon="mdi-home"
+    title="Home"
+    variant="outlined"
+    style="background-color: #ffffff; margin-bottom: 8px; border-radius: 4px;"
+    @click="router.push('/home')">
+  </v-list-item>
+
+  <v-list-item
+    prepend-icon="mdi-history"
+    title="Recent Recipes"
+    variant="outlined"
+    style="background-color: #ffffff; margin-bottom: 8px; border-radius: 4px;"
+    @click="router.push('/recentrecipes')">
+  </v-list-item>
+
+  <v-list-item
+    prepend-icon="mdi-checkbox-marked-circle-outline"
+    title="Finished Recipes"
+    variant="outlined"
+    style="background-color: #ffffff; margin-bottom: 8px; border-radius: 4px;"
+    @click="router.push('/finishedrecipes')">
+  </v-list-item>
+
+  <v-list-item
+    prepend-icon="mdi-food"
+    title="Dishes/Recipes"
+    variant="outlined"
+    style="background-color: #ffffff; border-radius: 4px;"
+    @click="router.push('/dishes')">
+  </v-list-item>
+</v-list>
+
     </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main style="background-color: #E8F5E9; color: #1D3557;">
+    <v-main style="min-height: 100vh; background: url(/pics/bg3.jpg) no-repeat center fixed; background-size: cover;">
       <slot></slot>
     </v-main>
 
     <!-- Footer -->
-    <v-footer app style="background-color: #404258; color: #E2DFD0;">
+    <v-footer app style="background: rgba(64, 64, 64, 0.15); backdrop-filter: blur(25px); color: #E2DFD0;">
       <v-col class="text-center">© {{ new Date().getFullYear() }} Recipe Application</v-col>
     </v-footer>
   </v-app>
+</v-responsive>
 </template>
 
