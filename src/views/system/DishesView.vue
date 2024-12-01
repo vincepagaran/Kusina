@@ -35,7 +35,7 @@ const fetchRecipesWithDetails = async () => {
   try {
     const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
       params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+        apiKey: '46a2a3cda1bd4922a2c7bcfbbe1d3f13', // Replace with your API key
         number: 10, // Fetch 10 recipes
       },
     })
@@ -46,7 +46,7 @@ const fetchRecipesWithDetails = async () => {
     const recipeDetailsRequests = randomRecipes.map(recipe =>
       axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
         params: {
-          apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
+          apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
         },
       })
     )
@@ -190,9 +190,9 @@ watch(drawer, (newState) => {
                 <v-card>
                   <v-img :src="recipe.image" height="200px"></v-img>
                   <v-card-title>{{ recipe.title }}</v-card-title>
-                  <v-card-actions>
-                    <v-btn color="primary" @click="viewDetails(recipe.id)">View Details</v-btn>
-                  </v-card-actions>
+                  <v-card-actions style="position: absolute; bottom: 10px; right: 10px;">
+                        <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="viewDetails(recipe.id)">View Details</v-btn>
+                    </v-card-actions>
                 </v-card>
               </v-col>
             </v-row>
@@ -224,10 +224,10 @@ watch(drawer, (newState) => {
               </v-card-text>
 
               <!-- Actions -->
-              <v-card-actions>
-                <v-btn color="primary" text @click="closeDialog">Close</v-btn>
-                <v-btn color="secondary" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
-              </v-card-actions>
+              <v-card-actions class="card-actions">
+      <v-btn style="background-color: #8D6E63; color: #e2dfd0;" text @click="closeDialog">Close</v-btn>
+      <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
+    </v-card-actions>
             </v-card>
           </v-dialog>
         </v-container>
@@ -302,15 +302,20 @@ body {
 
 .v-card-actions {
   padding: 10px;
-  justify-content: space-between;
+  justify-content: center;  /* Center the button horizontally */
+  position: relative;
+  bottom: 20px; /* Add space at the bottom */
+  left: 50%;
+  transform: translateX(-50%); /* Center the button horizontally */
+  margin-top: -20px; /* Move the button up */
 }
 
 /* Dialog Content */
-.v-dialog {
+/* .v-dialog {
   border-radius: 15px;
   padding: 16px;
   background-color: #ffffff;
-}
+} */
 
 .v-card-title {
   font-weight: bold;
