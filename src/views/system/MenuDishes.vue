@@ -1,11 +1,11 @@
 <template>
   <v-app>
     <AppLayout>
-      <v-main style="min-height: 100vh;">
+      <v-main style="min-height: 100vh">
         <v-container>
           <v-row v-if="menuItems.length > 0">
             <v-col cols="12">
-              <h1 style="color: #e2dfd0;">Recipe List:</h1>
+              <h1 style="color: #e2dfd0">Recipe List:</h1>
             </v-col>
             <v-col v-for="(recipe, index) in menuItems" :key="index" cols="12" sm="6" md="4">
               <v-card class="menu-card">
@@ -23,8 +23,8 @@
             <v-col cols="12" class="d-flex flex-column align-center justify-center text-center">
               <v-card class="no-dishes-card pa-5">
                 <v-icon icon="mdi-food-off" size="60" color="grey"></v-icon>
-                <h2 class="mt-3" style="color: #e2dfd0;">No Dishes Added</h2>
-                <p style="color: #bdbdbd;">
+                <h2 class="mt-3" style="color: #e2dfd0">No Dishes Added</h2>
+                <p style="color: #bdbdbd">
                   It seems like your menu is empty. Start adding some delicious recipes!
                 </p>
                 <v-btn color="brown-lighten-1" class="mt-3" @click="router.push('/dishes')">
@@ -44,7 +44,7 @@
                 <h3>Ingredients</h3>
                 <p>{{ currentIngredient }}</p>
 
-                <div v-if="currentStep < totalSteps">
+                <div v-if="currentStep < totalSteps - 1">
                   <p><strong>Step:</strong> {{ currentStepDescription }}</p>
                   <p><strong>Time Remaining:</strong> {{ formattedTime }}</p>
 
@@ -60,7 +60,6 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-
         </v-container>
       </v-main>
     </AppLayout>
@@ -69,7 +68,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import router from '@/router';
+import router from '@/router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import axios from 'axios'
 
@@ -89,20 +88,21 @@ const recipe = ref(null)
 
 // API URL and key
 const API_URL = 'https://api.spoonacular.com/recipes/random'
-const API_KEY = 'f79e60188f114e95ac5413f96d37d32f'
+const API_KEY = '79a38345f6e1445aa4ae814dc7a65ed7'
 
 // Fetch the recipe data from Spoonacular API
 const fetchRecipe = async () => {
   try {
     const response = await axios.get(API_URL, {
-      params: { apiKey: API_KEY, number: 1 }
+      params: { apiKey: API_KEY, number: 1 },
     })
     const randomRecipe = response.data.recipes[0]
     recipe.value = {
       title: randomRecipe.title,
       image: randomRecipe.image,
-      ingredients: randomRecipe.extendedIngredients.map(i => i.name),
-      steps: randomRecipe.analyzedInstructions[0]?.steps.map(s => ({ description: s.step })) || []
+      ingredients: randomRecipe.extendedIngredients.map((i) => i.name),
+      steps:
+        randomRecipe.analyzedInstructions[0]?.steps.map((s) => ({ description: s.step })) || [],
     }
     currentStep.value = 0
   } catch (error) {
@@ -110,30 +110,117 @@ const fetchRecipe = async () => {
   }
 }
 
-const totalSteps = computed(() => (recipe.value?.steps?.length || 0) + (recipe.value?.ingredients?.length || 20))
-const timer = ref(300)
 const isTimerRunning = ref(false)
-const formattedTime = computed(() => `${Math.floor(timer.value / 60)}:${timer.value % 60 < 10 ? '0' : ''}${timer.value % 60}`)
+const formattedTime = computed(
+  () => `${Math.floor(timer.value / 60)}:${timer.value % 60 < 10 ? '0' : ''}${timer.value % 60}`,
+)
 let timerInterval = null
 
-const currentIngredient = computed(() => (currentStep.value < recipe.value?.ingredients?.length ? recipe.value.ingredients[currentStep.value] : ''))
-const currentStepDescription = computed(() => (currentStep.value < recipe.value?.steps?.length ? recipe.value.steps[currentStep.value]?.description : ''))
+const currentIngredient = computed(() => {
+  if (currentStep.value < recipe.value?.ingredients?.length) {
+    return recipe.value.ingredients[currentStep.value]
+  }
+  return ''
+})
+// Current step description based on step
+const currentStepDescription = computed(() => {
+  if (currentStep.value < recipe.value?.steps?.length) {
+    return recipe.value.steps[currentStep.value]?.description
+  }
+  return ''
+})
+
+const totalSteps = computed(() => {
+  const ingredientSteps = recipe.value?.ingredients?.length || 0;
+  const cookingSteps = recipe.value?.steps?.length || 0;
+  return ingredientSteps + cookingSteps; // Total number of steps
+});
+
+const timer = ref(30)
 
 const startCooking = async () => {
   await fetchRecipe()
   dialog.value = true
-  timer.value = 300
+  currentStep.value = 0
   isTimerRunning.value = false
-  clearInterval(timerInterval)
+  resetTimer()
 }
 
-const previousStep = () => { if (currentStep.value > 0) currentStep.value-- }
-const skipStep = () => { if (currentStep.value < totalSteps.value - 1) currentStep.value++ }
-const toggleTimer = () => { isTimerRunning.value ? clearInterval(timerInterval) : startTimer(); isTimerRunning.value = !isTimerRunning.value }
-const startTimer = () => { timerInterval = setInterval(() => { if (timer.value > 0) timer.value-- }, 1000) }
-const finishCooking = () => { dialog.value = false; currentStep.value = 0; clearInterval(timerInterval); alert('Congratulations, you finished cooking!') }
-const removeFromMenu = (index) => { menuItems.value.splice(index, 1); localStorage.setItem('menuItems', JSON.stringify(menuItems.value)) }
-watch(timer, (newValue) => { if (newValue <= 0) clearInterval(timerInterval) })
+const resetTimer = () => {
+  timer.value = 30 // Reset to 30 seconds for the current step
+  clearInterval(timerInterval)
+  if (isTimerRunning.value) startTimer()
+}
+
+const skipStep = () => {
+  if (currentStep.value < totalSteps.value - 1) {
+    currentStep.value++
+    resetTimer() // Reset the timer for the new step
+  }
+}
+
+const previousStep = () => {
+  if (currentStep.value > 0) {
+    currentStep.value--
+    resetTimer() // Reset the timer for the previous step
+  }
+}
+
+const toggleTimer = () => {
+  if (isTimerRunning.value) {
+    clearInterval(timerInterval)
+  } else {
+    startTimer()
+  }
+  isTimerRunning.value = !isTimerRunning.value
+}
+
+const startTimer = () => {
+  timerInterval = setInterval(() => {
+    if (timer.value > 0) {
+      timer.value--
+    } else {
+      clearInterval(timerInterval)
+      isTimerRunning.value = false
+    }
+  }, 1000) // Decrease the timer by 1 second
+}
+
+const finishCooking = () => {
+  // Store the finished recipe in localStorage or another state
+  const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || [];
+  finishedRecipes.push(recipe.value); // Add the current recipe to the finished recipes list
+  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes));
+
+  // Close the dialog and reset steps
+  dialog.value = false;
+  currentStep.value = 0;
+  clearInterval(timerInterval);
+
+  // Notify and navigate to FinishRecipe.vue
+  alert('Congratulations, you’ve finished cooking! Enjoy your meal.');
+  router.push({ name: 'finishrecipe', params: { recipeId: recipe.value.id } });
+}
+
+const removeFromMenu = (index) => {
+  menuItems.value.splice(index, 1)
+  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
+}
+
+watch(currentStep, (newStep) => {
+  console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`);
+});
+
+watch(timer, (newValue) => {
+  if (newValue <= 0) {
+    clearInterval(timerInterval)
+    isTimerRunning.value = false
+    if (currentStep.value < totalSteps.value - 1) {
+      currentStep.value++
+      resetTimer()
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -151,7 +238,7 @@ watch(timer, (newValue) => { if (newValue <= 0) clearInterval(timerInterval) })
 
 ::v-deep(.menu-card) {
   border-radius: 12px;
-  background: #A59D84;
+  background: #a59d84;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
