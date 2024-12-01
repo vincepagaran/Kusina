@@ -57,7 +57,7 @@ onMounted(() => {
         expand-on-hover
         rail
         app
-        style="background-color: transparent; backdrop-filter: blur(25px); color: #f6fcdf"
+        style="background-color: transparent; backdrop-filter: blur(25px); color: #2A3335"
       >
         <v-list density="compact" nav>
           <v-list-item
@@ -70,11 +70,11 @@ onMounted(() => {
           </v-list-item>
 
           <v-list-item
-            prepend-icon="mdi-history"
-            title="Recent Recipes"
+            prepend-icon="mdi-silverware-fork-knife"
+            title="My Menu"
             variant="outlined"
             style="background-color: #A59D84; margin-bottom: 8px; border-radius: 4px"
-            @click="router.push('/recentrecipes')"
+            @click="router.push('/menu')"
           >
           </v-list-item>
 
