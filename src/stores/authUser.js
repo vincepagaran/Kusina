@@ -1,86 +1,73 @@
-import { computed, ref } from 'vue'
-import { defineStore } from 'pinia'
-import { supabase } from '@/utils/supabase'
+import { computed, ref, watch } from 'vue';
+import { defineStore } from 'pinia';
+import { supabase } from '@/utils/supabase';
 
 export const useAuthUserStore = defineStore('authUser', () => {
   // States
-  const userData = ref(null)
+  const userData = ref(JSON.parse(localStorage.getItem('userData')) || null);
+
+  // Watch `userData` and update localStorage whenever it changes
+  watch(userData, (newValue) => {
+    if (newValue) {
+      localStorage.setItem('userData', JSON.stringify(newValue));
+    } else {
+      localStorage.removeItem('userData');
+    }
+  });
 
   // Getters
-  // Computed Properties; Use for getting the state but not modifying its reactive state
   const userRole = computed(() => {
-    return userData.value?.is_admin ? 'Administrator' : 'User'
-  })
+    return userData.value?.is_admin ? 'Administrator' : 'User';
+  });
 
   // Reset State Action
   function $reset() {
-    userData.value = null
+    userData.value = null;
   }
 
   // Actions
-  // Retrieve User Information
   async function getUserInformation() {
     const {
       data: {
-        // Retrieve Id, Email and Metadata thru Destructuring
         user: { id, email, user_metadata },
       },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
-    // Set the retrieved information to state
-    userData.value = { id, email, ...user_metadata }
+    userData.value = { id, email, ...user_metadata };
   }
 
-  // Update User Information
   async function updateUserInformation(updatedData) {
     const {
-      data: {
-        // Retrieve Id, Email and Metadata thru Destructuring
-        user: { id, email, user_metadata },
-      },
+      data: { user: { id, email, user_metadata } },
       error,
     } = await supabase.auth.updateUser({
       data: {
         ...updatedData,
       },
-    })
+    });
 
-    // Check if it has error
     if (error) {
-      return { error }
-    }
-    // If no error set updatedData to userData state
-    else if (user_metadata) {
-      userData.value = { id, email, ...user_metadata }
-
-      return { data: userData.value }
+      return { error };
+    } else if (user_metadata) {
+      userData.value = { id, email, ...user_metadata };
+      return { data: userData.value };
     }
   }
 
-  // Update User Profile Image
   async function updateUserImage(file) {
-    // Get the file extension from the uploaded file
-    // const fileExtension = file.name.split('.').pop()
-
-    // Upload the file with the user ID and file extension
     const { data, error } = await supabase.storage
       .from('Kusina')
       .upload('avatars/' + userData.value.id + '-avatar.png', file, {
         cacheControl: '3600',
         upsert: true,
-      })
+      });
 
-    // Check if it has error
     if (error) {
-      return { error }
-    }
-    // If no error set data to userData state with the image_url
-    else if (data) {
-      // Retrieve Image Public Url
-      const { data: imageData } = supabase.storage.from('Kusina').getPublicUrl(data.path)
+      return { error };
+    } else if (data) {
+      const { data: imageData } = supabase.storage.from('Kusina').getPublicUrl(data.path);
 
-      // Update the user information with the new image_url
-      return await this.updateUserInformation({ ...userData.value, image_url: imageData.publicUrl })
+      return await updateUserInformation({ ...userData.value, image_url: imageData.publicUrl });
     }
   }
 
@@ -91,5 +78,5 @@ export const useAuthUserStore = defineStore('authUser', () => {
     getUserInformation,
     updateUserInformation,
     updateUserImage,
-  }
-})
+  };
+});
