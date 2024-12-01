@@ -71,6 +71,21 @@ export const useAuthUserStore = defineStore('authUser', () => {
     }
   }
 
+  // New: Login Action
+  async function login({ email, password }) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error };
+    } else if (data.user) {
+      await getUserInformation(); // Refresh user data after login
+      return { data: userData.value };
+    }
+  }
+
   return {
     userData,
     userRole,
@@ -78,5 +93,6 @@ export const useAuthUserStore = defineStore('authUser', () => {
     getUserInformation,
     updateUserInformation,
     updateUserImage,
+    login, // Expose the login function
   };
 });

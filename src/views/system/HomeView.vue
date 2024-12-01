@@ -3,19 +3,25 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/utils/supabase'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { useAuthUserStore } from '@/stores/authUser';
 
 const router = useRouter()
+const authStore = useAuthUserStore()
+const loading = ref(true)
 const user = ref(null)
 const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
 
 onMounted(async () => {
   const { data: currentUser, error } = await supabase.auth.getUser()
-  if (error) {
+  if (!authStore.userData) {
+    await authStore.getUserInformation()
+  }else if (error) {
     console.error('Error fetching user:', error.message)
     router.replace('/login') // Redirect to login if there's an error
   } else if (!currentUser) {
     router.replace('/login') // Redirect to login if no user is logged in
   } else {
+    loading.value = false;
     user.value = currentUser.user
   }
 })

@@ -1,119 +1,121 @@
 <script setup>
-import { ref } from 'vue'
-import { requiredValidator, emailValidator } from '@/utils/validators'
+import { ref } from 'vue';
+import { requiredValidator, emailValidator } from '@/utils/validators';
 import { formActionDefault, supabase } from '@/utils/supabase';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { useAuthUserStore } from '@/stores/authUser';
 
-
-const visible = ref(false)
-const router = useRouter()
-const refVForm = ref()
+const visible = ref(false);
+const router = useRouter();
+const refVForm = ref();
+const authStore = useAuthUserStore();
 
 const formDataDefault = {
   email: '',
   password: '',
-}
+};
 
 const formData = ref({
   ...formDataDefault,
-})
+});
+
 const formAction = ref({
   ...formActionDefault,
-})
+});
 
-const onSubmit = async() => {
-  formAction.value = { ...formActionDefault }
-  formAction.value.formProcess = true
+const onSubmit = async () => {
+  formAction.value = { ...formActionDefault };
+  formAction.value.formProcess = true;
 
   const { data, error } = await supabase.auth.signInWithPassword({
-  email: formData.value.email,
-  password: formData.value.password,
-})
+    email: formData.value.email,
+    password: formData.value.password,
+  });
+
   if (error) {
-    console.log(error)
-    formAction.value.formErrorMessage = error.message
-    formAction.value.formProcess = error.status
+    console.error(error);
+    formAction.value.formErrorMessage = error.message;
+    formAction.value.formProcess = false;
   } else if (data) {
-    console.log(data)
-    formAction.value.formSuccessMessage = 'Successfully Login.'
-    // add here more actions if you want
-    router.replace('/home')
+    console.log(data);
+    formAction.value.formSuccessMessage = 'Successfully logged in.';
+    await authStore.getUserInformation(); // Sync user data in the store
+    router.replace('/home'); // Navigate to home page
   }
-refVForm.value?.reset()
-  formAction.value.formProcess = false
-}
+
+  formAction.value.formProcess = false;
+};
 
 const onFormSubmit = () => {
   refVForm.value?.validate().then(({ valid }) => {
-    if (valid)
-    onSubmit()
-  })
-}
-
-
+    if (valid) {
+      onSubmit();
+    }
+  });
+};
 </script>
+
 
 <template>
   <v-form ref="refVForm" @submit.prevent="onFormSubmit">
-  <v-app>
-    <v-main>
-      <v-container fluid class="d-flex justify-center align-center fill-height">
-        <!-- Login Form -->
-        <v-row class="d-flex justify-center">
-          <v-col cols="12" sm="8" md="6" lg="4">
-             <div class="loginform">
-              <!-- Logo -->
-              <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
+    <v-app>
+      <v-main>
+        <v-container fluid class="d-flex justify-center align-center fill-height">
+          <!-- Login Form -->
+          <v-row class="d-flex justify-center">
+            <v-col cols="12" sm="8" md="6" lg="4">
+              <div class="loginform">
+                <!-- Logo -->
+                <img src="/public/pics/logo.png" alt="Logo" class="login-logo" />
 
-              <h1 class="logintitle">Login</h1>
+                <h1 class="logintitle">Login</h1>
 
-              <!-- Email Input -->
-              <v-text-field
-                v-model="formData.email"
-                prepend-inner-icon="mdi-email-outline"
-                placeholder="Email"
-                density="compact"
-                variant="outlined"
-                :rules="[requiredValidator, emailValidator]"
-              />
+                <!-- Email Input -->
+                <v-text-field
+                  v-model="formData.email"
+                  prepend-inner-icon="mdi-email-outline"
+                  placeholder="Email"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[requiredValidator, emailValidator]"
+                />
 
-              <!-- Password Input with Visibility Toggle -->
-              <v-text-field
-                v-model="formData.password"
-                :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                :type="visible ? 'text' : 'password'"
-                prepend-inner-icon="mdi-lock-outline"
-                placeholder="Password"
-                density="compact"
-                variant="outlined"
-                @click:append-inner="visible = !visible"
-                :rules="[requiredValidator]"
-              />
+                <!-- Password Input with Visibility Toggle -->
+                <v-text-field
+                  v-model="formData.password"
+                  :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="visible ? 'text' : 'password'"
+                  prepend-inner-icon="mdi-lock-outline"
+                  placeholder="Password"
+                  density="compact"
+                  variant="outlined"
+                  @click:append-inner="visible = !visible"
+                  :rules="[requiredValidator]"
+                />
 
-              <!-- Login Button -->
-              <v-btn
-                type="submit"
-                class="mb-8 login-btn"
-                color="blue"
-                size="large"
-                variant="tonal"
-                block
-                @click="login"
-              >
-                Login
-              </v-btn>
+                <!-- Login Button -->
+                <v-btn
+                  type="submit"
+                  class="mb-8 login-btn"
+                  color="blue"
+                  size="large"
+                  variant="tonal"
+                  block
+                >
+                  Login
+                </v-btn>
 
-              <!-- Register Link -->
-              <p class="register">
-                Don't have an account?
-                <router-link to="/register" class="signup-link">Sign Up</router-link>
-              </p>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
-  </v-app>
+                <!-- Register Link -->
+                <p class="register">
+                  Don't have an account?
+                  <router-link to="/register" class="signup-link">Sign Up</router-link>
+                </p>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </v-app>
   </v-form>
 </template>
 
