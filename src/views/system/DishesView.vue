@@ -1,154 +1,114 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
-import { supabase } from '@/utils/supabase'
-import { useRouter } from 'vue-router'
-import AppLayout from '@/components/layout/AppLayout.vue'
+import { ref, onMounted, watch } from 'vue';
+import axios from 'axios';
+import { supabase } from '@/utils/supabase';
+import { useRouter } from 'vue-router';
+import AppLayout from '@/components/layout/AppLayout.vue';
 
-const router = useRouter()
-const user = ref(null)
+const router = useRouter();
+const user = ref(null);
 
 // State variables
-const recipes = ref([]) // Stores the fetched recipes
-const selectedRecipe = ref(null) // Stores detailed recipe information
-const loading = ref(false) // Indicates loading state
-const searchQuery = ref('') // Stores the user's search input
-const dialog = ref(false)
-const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
+const recipes = ref([]); // Stores the fetched recipes
+const selectedRecipe = ref(null); // Stores detailed recipe information
+const loading = ref(false); // Indicates loading state
+const searchQuery = ref(''); // Stores the user's search input
+const dialog = ref(false);
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false); // Load state from localStorage
 
 onMounted(async () => {
-  const { data: currentUser, error } = await supabase.auth.getUser()
+  const { data: currentUser, error } = await supabase.auth.getUser();
   if (error) {
-    console.error('Error fetching user:', error.message)
-    router.replace('/login') // Redirect to login if there's an error
+    console.error('Error fetching user:', error.message);
+    router.replace('/login'); // Redirect to login if there's an error
   } else if (!currentUser) {
-    router.replace('/login') // Redirect to login if no user is logged in
+    router.replace('/login'); // Redirect to login if no user is logged in
   } else {
-    user.value = currentUser.user
+    user.value = currentUser.user;
   }
-})
+});
 
-// Fetch recipes and their details
-const fetchRecipesWithDetails = async () => {
-  loading.value = true
-
-  try {
-    const recipeResponse = await axios.get('https://api.spoonacular.com/recipes/random', {
-      params: {
-        apiKey: '46a2a3cda1bd4922a2c7bcfbbe1d3f13', // Replace with your API key
-        number: 10, // Fetch 10 recipes
-      },
-    })
-
-    const randomRecipes = recipeResponse.data.recipes
-
-    // Fetch details for each recipe
-    const recipeDetailsRequests = randomRecipes.map(recipe =>
-      axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
-        params: {
-          apiKey: 'e7bbe0e97c144ffd86e6ec26e750b37e', // Replace with your API key
-        },
-      })
-    )
-
-    const detailedResponses = await Promise.all(recipeDetailsRequests)
-    recipes.value = detailedResponses.map((response) => response.data)
-  } catch (error) {
-    console.error('Error fetching recipes:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const addToMenu = (recipe) => {
-  // Retrieve the existing menu items from localStorage
-  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || []
-
-  // Add the new recipe to the array
-  savedMenuItems.push(recipe)
-
-  // Save the updated array back to localStorage
-  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems))
-
-  // Navigate to the "Menu" page
-  router.push({ name: 'menu' })  // No need to pass recipe in the route params
-}
 // Search recipes based on the query
 const searchRecipes = async () => {
   if (!searchQuery.value) {
-    await fetchRecipesWithDetails() // Fallback to random recipes if no search query
-    return
+    recipes.value = []; // Clear recipes if search query is empty
+    return;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
-      params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
-        query: searchQuery.value,
-        number: 10, // Fetch 10 recipes
-      },
-    })
-    recipes.value = response.data.results // Use the results array for search API
+    const response = await axios.get('https://www.themealdb.com/api/json/v1/1/search.php', {
+      params: { s: searchQuery.value }, // Search for recipes by name
+    });
+
+    recipes.value = response.data.meals || []; // Assign results or empty array
   } catch (error) {
-    console.error('Error searching recipes:', error)
+    console.error('Error searching recipes:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // View recipe details
 const viewDetails = async (recipeId) => {
   try {
-    loading.value = true
-    const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
-      params: {
-        apiKey: 'f79e60188f114e95ac5413f96d37d32f', // Replace with your API key
-      },
-    })
+    loading.value = true;
+    const response = await axios.get('https://www.themealdb.com/api/json/v1/1/lookup.php', {
+      params: { i: recipeId }, // Fetch recipe details by ID
+    });
 
-    const recipeDetails = response.data
+    const recipeDetails = response.data.meals[0];
     selectedRecipe.value = {
-      id: recipeDetails.id,
-      title: recipeDetails.title,
-      image: recipeDetails.image,
-      summary: recipeDetails.summary,
-      ingredients: recipeDetails.extendedIngredients.map((ingredient) => ({
-        name: ingredient.name,
-        amount: ingredient.amount,
-        unit: ingredient.unit,
-      })),
-      instructions: recipeDetails.instructions,
-    }
+      id: recipeDetails.idMeal,
+      title: recipeDetails.strMeal,
+      image: recipeDetails.strMealThumb,
+      summary: recipeDetails.strInstructions,
+      ingredients: Object.keys(recipeDetails)
+        .filter((key) => key.startsWith('strIngredient') && recipeDetails[key])
+        .map((key, index) => ({
+          name: recipeDetails[key],
+          amount: recipeDetails[`strMeasure${index + 1}`],
+        })),
+      instructions: recipeDetails.strInstructions,
+    };
 
-    dialog.value = true // Open the dialog
+    dialog.value = true; // Open the dialog
   } catch (error) {
-    console.error('Error fetching recipe details:', error)
+    console.error('Error fetching recipe details:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-// Watch searchQuery and trigger search automatically (optional)
-watch(searchQuery, (newQuery) => {
-  if (!newQuery) {
-    fetchRecipesWithDetails()
-  }
-})
+// Add to Menu
+const addToMenu = (recipe) => {
+  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
+  savedMenuItems.push(recipe);
+  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems));
+  router.push({ name: 'menu' });
+};
 
 // Function to close the dialog
 const closeDialog = () => {
-  selectedRecipe.value = null
-}
-
-// Fetch data when the component is mounted
-onMounted(fetchRecipesWithDetails)
+  selectedRecipe.value = null;
+};
 
 // Watch and save drawer state
 watch(drawer, (newState) => {
-  localStorage.setItem('drawerState', JSON.stringify(newState))
-})
+  localStorage.setItem('drawerState', JSON.stringify(newState));
+});
+
+// Automatically fetch recipes when the query changes
+watch(searchQuery, (newQuery) => {
+  if (newQuery) {
+    searchRecipes();
+  } else {
+    recipes.value = []; // Clear recipes when query is empty
+  }
+});
 </script>
+
+
 
 <template>
   <v-app>
@@ -156,6 +116,11 @@ watch(drawer, (newState) => {
       <!-- Main Content -->
       <v-main>
         <v-container>
+
+          <!-- Title -->
+          <h1 class="text-center title-text" style="color: #e2dfd0">
+            What do you want to make?
+          </h1>
           <!-- Search Bar -->
           <v-text-field
             v-model="searchQuery"
@@ -169,37 +134,31 @@ watch(drawer, (newState) => {
             @keyup.enter="searchRecipes"
           ></v-text-field>
 
-          <!-- Title -->
-          <h1 class="text-center title-text" style=" color: #e2dfd0">
-            What do you want to make?
-          </h1>
-
           <v-container>
             <v-row>
               <v-col cols="12">
-                <h1 style="color: #e2dfd0;">Food Recipes</h1>
+                <h1 style="color: #e2dfd0;">Result :</h1>
               </v-col>
-
               <!-- Loading Spinner -->
-              <v-col cols="12" v-if="loading" style=" height: 100px;">
+              <v-col cols="12" v-if="loading" style="height: 100px;">
                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
               </v-col>
 
               <!-- Display Recipes -->
-              <v-col v-for="recipe in recipes" :key="recipe.id" cols="12" sm="6" md="4">
+              <v-col v-for="recipe in recipes" :key="recipe.idMeal" cols="12" sm="6" md="4">
                 <v-card>
-                  <v-img :src="recipe.image" height="200px"></v-img>
-                  <v-card-title>{{ recipe.title }}</v-card-title>
-                  <v-card-actions style="position: absolute; bottom: 10px; right: 10px;">
-                        <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="viewDetails(recipe.id)">View Details</v-btn>
-                    </v-card-actions>
+                  <v-img :src="recipe.strMealThumb" height="200px"></v-img>
+                  <v-card-title>{{ recipe.strMeal }}</v-card-title>
+                  <v-card-actions>
+                    <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="viewDetails(recipe.idMeal)">View Details</v-btn>
+                  </v-card-actions>
                 </v-card>
               </v-col>
             </v-row>
           </v-container>
 
           <!-- Recipe Details Dialog -->
-          <v-dialog v-model="selectedRecipe" max-width="600px">
+          <v-dialog v-model="dialog" max-width="600px">
             <v-card v-if="selectedRecipe">
               <!-- Title -->
               <v-card-title>{{ selectedRecipe.title }}</v-card-title>
@@ -215,7 +174,7 @@ watch(drawer, (newState) => {
                 <p><strong>Ingredients:</strong></p>
                 <ul>
                   <li v-for="(ingredient, index) in selectedRecipe.ingredients" :key="index">
-                    {{ ingredient.amount }} {{ ingredient.unit }} of {{ ingredient.name }}
+                    {{ ingredient.amount }} of {{ ingredient.name }}
                   </li>
                 </ul>
 
@@ -224,10 +183,10 @@ watch(drawer, (newState) => {
               </v-card-text>
 
               <!-- Actions -->
-              <v-card-actions class="card-actions">
-      <v-btn style="background-color: #8D6E63; color: #e2dfd0;" text @click="closeDialog">Close</v-btn>
-      <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
-    </v-card-actions>
+              <v-card-actions>
+                <v-btn style="background-color: #8D6E63; color: #e2dfd0;" text @click="closeDialog">Close</v-btn>
+                <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
+              </v-card-actions>
             </v-card>
           </v-dialog>
         </v-container>
@@ -235,6 +194,7 @@ watch(drawer, (newState) => {
     </AppLayout>
   </v-app>
 </template>
+
 
 
 
