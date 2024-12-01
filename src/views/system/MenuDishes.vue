@@ -1,13 +1,14 @@
 <template>
   <v-app>
     <AppLayout>
-      <v-main style="background-color: #f5f5f5; min-height: 100vh;">
+      <v-main style="min-height: 100vh;">
         <v-container>
-          <h1 class="text-center mb-8" style="color: #404258;">My Menu</h1>
-
           <v-row v-if="menuItems.length > 0">
+            <v-col cols="12">
+                <h1 style="color: #e2dfd0;">Recipe List:</h1>
+              </v-col>
             <v-col v-for="(recipe, index) in menuItems" :key="index" cols="12" sm="6" md="4">
-              <v-card>
+              <v-card class="menu-card">
                 <v-img :src="recipe.image" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
@@ -205,21 +206,17 @@ watch(timer, (newValue) => {
 
 </script>
 
-
-
 <style scoped>
-/* Menu Title */
+::v-deep(.menu-card) {
+  border-radius: 12px;
+  background: #A59D84;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
 h1 {
   font-size: 2.5rem;
   margin-bottom: 16px;
-  color: #404258;
-}
-
-/* Card Styling */
-.menu-card {
-  border-radius: 12px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .menu-card:hover {
