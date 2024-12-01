@@ -5,8 +5,8 @@
         <v-container>
           <v-row v-if="menuItems.length > 0">
             <v-col cols="12">
-                <h1 style="color: #e2dfd0;">Recipe List:</h1>
-              </v-col>
+              <h1 style="color: #e2dfd0;">Recipe List:</h1>
+            </v-col>
             <v-col v-for="(recipe, index) in menuItems" :key="index" cols="12" sm="6" md="4">
               <v-card class="menu-card">
                 <v-img :src="recipe.image" height="200px"></v-img>
@@ -19,9 +19,18 @@
             </v-col>
           </v-row>
 
-          <v-row v-else>
-            <v-col cols="12" class="text-center">
-              <p>No dishes added to the menu yet.</p>
+          <v-row v-else class="no-dishes-container">
+            <v-col cols="12" class="d-flex flex-column align-center justify-center text-center">
+              <v-card class="no-dishes-card pa-5">
+                <v-icon icon="mdi-food-off" size="60" color="grey"></v-icon>
+                <h2 class="mt-3" style="color: #e2dfd0;">No Dishes Added</h2>
+                <p style="color: #bdbdbd;">
+                  It seems like your menu is empty. Start adding some delicious recipes!
+                </p>
+                <v-btn color="brown-lighten-1" class="mt-3" @click="router.push('/dishes')">
+                  Tap here to add Dishes
+                </v-btn>
+              </v-card>
             </v-col>
           </v-row>
 
@@ -58,11 +67,11 @@
   </v-app>
 </template>
 
-
 <script setup>
 import { ref, computed, watch } from 'vue'
+import router from '@/router';
 import AppLayout from '@/components/layout/AppLayout.vue'
-import axios from 'axios' // Import axios or your preferred API client
+import axios from 'axios'
 
 // Menu items state
 const menuItems = ref([])
@@ -70,13 +79,13 @@ const menuItems = ref([])
 // Retrieve the menu items from localStorage (if any)
 const savedMenuItems = JSON.parse(localStorage.getItem('menuItems'))
 if (savedMenuItems) {
-  menuItems.value = savedMenuItems // Populate the menuItems array
+  menuItems.value = savedMenuItems
 }
 
 // State for cooking procedure
-const dialog = ref(false)  // Controls the modal visibility
+const dialog = ref(false)
 const currentStep = ref(0)
-const recipe = ref(null) // Will hold the dynamic recipe data
+const recipe = ref(null)
 
 // API URL and key
 const API_URL = 'https://api.spoonacular.com/recipes/random'
@@ -86,127 +95,60 @@ const API_KEY = 'f79e60188f114e95ac5413f96d37d32f'
 const fetchRecipe = async () => {
   try {
     const response = await axios.get(API_URL, {
-      params: {
-        apiKey: API_KEY, // Pass API key as query parameter
-        number: 1 // Get one random recipe
-      }
+      params: { apiKey: API_KEY, number: 1 }
     })
-    const randomRecipe = response.data.recipes[0] // Extract the first recipe from the response
+    const randomRecipe = response.data.recipes[0]
     recipe.value = {
       title: randomRecipe.title,
       image: randomRecipe.image,
-      ingredients: randomRecipe.extendedIngredients.map(ingredient => ingredient.name),
-      steps: randomRecipe.analyzedInstructions[0]?.steps.map(step => ({
-        description: step.step
-      })) || [] // Use safe navigation for steps in case it's undefined
+      ingredients: randomRecipe.extendedIngredients.map(i => i.name),
+      steps: randomRecipe.analyzedInstructions[0]?.steps.map(s => ({ description: s.step })) || []
     }
-    currentStep.value = 0 // Reset steps
+    currentStep.value = 0
   } catch (error) {
     console.error('Error fetching recipe:', error)
   }
 }
 
-// Ensure steps are initialized when recipe is fetched
 const totalSteps = computed(() => (recipe.value?.steps?.length || 0) + (recipe.value?.ingredients?.length || 20))
-
-// Timer state
-const timer = ref(300) // Timer in seconds (e.g., 5 minutes)
-const isTimerRunning = ref(false) // Timer running status
-
-// Format timer to mm:ss
-const formattedTime = computed(() => {
-  const minutes = Math.floor(timer.value / 60)
-  const seconds = timer.value % 60
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
-})
-
-// Timer interval handle
+const timer = ref(300)
+const isTimerRunning = ref(false)
+const formattedTime = computed(() => `${Math.floor(timer.value / 60)}:${timer.value % 60 < 10 ? '0' : ''}${timer.value % 60}`)
 let timerInterval = null
 
-// Current ingredient based on step
-const currentIngredient = computed(() => {
-  if (currentStep.value < recipe.value?.ingredients?.length) {
-    return recipe.value.ingredients[currentStep.value]
-  }
-  return ''
-})
+const currentIngredient = computed(() => (currentStep.value < recipe.value?.ingredients?.length ? recipe.value.ingredients[currentStep.value] : ''))
+const currentStepDescription = computed(() => (currentStep.value < recipe.value?.steps?.length ? recipe.value.steps[currentStep.value]?.description : ''))
 
-// Current step description based on step
-const currentStepDescription = computed(() => {
-  if (currentStep.value < recipe.value?.steps?.length) {
-    return recipe.value.steps[currentStep.value]?.description
-  }
-  return ''
-})
-
-// Start cooking procedure
 const startCooking = async () => {
-  await fetchRecipe() // Fetch the recipe from Spoonacular
-  dialog.value = true // Show the modal dialog
-  timer.value = 300 // Reset timer for each recipe (5 minutes)
-  isTimerRunning.value = false // Ensure timer is not running on start
-  clearInterval(timerInterval) // Clear any existing intervals
+  await fetchRecipe()
+  dialog.value = true
+  timer.value = 300
+  isTimerRunning.value = false
+  clearInterval(timerInterval)
 }
 
-// Previous step
-const previousStep = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
-  }
-}
-
-// Skip step
-const skipStep = () => {
-  if (currentStep.value < totalSteps.value - 1) {
-    currentStep.value++
-  }
-}
-
-// Toggle Timer (Start / Pause)
-const toggleTimer = () => {
-  if (isTimerRunning.value) {
-    clearInterval(timerInterval)
-  } else {
-    startTimer()
-  }
-  isTimerRunning.value = !isTimerRunning.value
-}
-
-// Start the timer (activated only on "Start Timer" click)
-const startTimer = () => {
-  timerInterval = setInterval(() => {
-    if (timer.value > 0) {
-      timer.value-- // Decrement time
-    } else {
-      clearInterval(timerInterval) // Stop timer when it reaches 0
-    }
-  }, 1000) // Update every second
-}
-
-// Finish cooking
-const finishCooking = () => {
-  dialog.value = false // Close the modal
-  currentStep.value = 0
-  clearInterval(timerInterval) // Stop the timer
-  alert('Congratulations, you finished cooking!')
-}
-
-// Remove a dish from the menu
-const removeFromMenu = (index) => {
-  menuItems.value.splice(index, 1)
-  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
-}
-
-// Watch the timer to stop at 0
-watch(timer, (newValue) => {
-  if (newValue <= 0) {
-    clearInterval(timerInterval) // Stop the timer if it reaches 0
-  }
-})
-
+const previousStep = () => { if (currentStep.value > 0) currentStep.value-- }
+const skipStep = () => { if (currentStep.value < totalSteps.value - 1) currentStep.value++ }
+const toggleTimer = () => { isTimerRunning.value ? clearInterval(timerInterval) : startTimer(); isTimerRunning.value = !isTimerRunning.value }
+const startTimer = () => { timerInterval = setInterval(() => { if (timer.value > 0) timer.value-- }, 1000) }
+const finishCooking = () => { dialog.value = false; currentStep.value = 0; clearInterval(timerInterval); alert('Congratulations, you finished cooking!') }
+const removeFromMenu = (index) => { menuItems.value.splice(index, 1); localStorage.setItem('menuItems', JSON.stringify(menuItems.value)) }
+watch(timer, (newValue) => { if (newValue <= 0) clearInterval(timerInterval) })
 </script>
 
 <style scoped>
+.no-dishes-container {
+  min-height: 60vh;
+}
+
+.no-dishes-card {
+  background: #2e2e2e;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+}
+
 ::v-deep(.menu-card) {
   border-radius: 12px;
   background: #A59D84;
@@ -227,20 +169,5 @@ h1 {
 .menu-card-img {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-}
-
-/* Button Styling */
-v-btn {
-  margin-right: 8px;
-}
-
-/* Dialog Content */
-ul {
-  list-style: disc;
-  margin-left: 16px;
-}
-
-li {
-  font-size: 1rem;
 }
 </style>
