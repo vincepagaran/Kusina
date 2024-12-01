@@ -57,7 +57,7 @@ onMounted(() => {
         expand-on-hover
         rail
         app
-        style="background-color: transparent; backdrop-filter: blur(25px); color: #2A3335"
+        style="background-color: transparent; backdrop-filter: blur(25px); color: #181C14"
       >
         <v-list density="compact" nav>
           <v-list-item
