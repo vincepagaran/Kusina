@@ -7,6 +7,7 @@ import DishesView from '@/views/system/DishesView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import MenuDishes from '@/views/system/MenuDishes.vue'
 import AccountSettings from '@/components/system/AccountSettings.vue'
+import FinishDishes from '@/views/system/FinishDishes.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -45,11 +46,16 @@ const router = createRouter({
       component: MenuDishes,
     },
     {
+      path: '/finishdishes',
+      name: 'finishdishes',
+      component: FinishDishes,
+    },
+    {
       path: '/account/settings',
       name: 'accountsettings',
       component: AccountSettings,
       meta: { requiresAuth: true },
-    }
+    },
   ],
 })
 router.beforeEach(async (to) => {

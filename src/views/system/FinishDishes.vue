@@ -1,0 +1,109 @@
+<template>
+  <v-app>
+    <AppLayout>
+      <v-main style="min-height: 100vh">
+        <v-container>
+          <v-row v-if="finishedRecipes.length > 0">
+            <v-col cols="12">
+              <h1 style="color: #e2dfd0">Finished Recipes</h1>
+            </v-col>
+            <v-col v-for="(recipe, index) in finishedRecipes" :key="index" cols="12" sm="6" md="4">
+              <v-card class="menu-card">
+                <v-img :src="recipe.image" height="200px"></v-img>
+                <v-card-title>{{ recipe.title }}</v-card-title>
+                <v-card-actions>
+                  <v-btn color="red" @click="removeFinishedRecipe(index)">Remove</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-row v-else class="no-dishes-container">
+            <v-col cols="12" class="d-flex flex-column align-center justify-center text-center">
+              <v-card class="no-dishes-card pa-5">
+                <v-icon icon="mdi-food-off" size="60" color="grey"></v-icon>
+                <h2 class="mt-3" style="color: #e2dfd0">No Finished Recipes</h2>
+                <p style="color: #bdbdbd">
+                  Start cooking and add recipes here once you finish!
+                </p>
+                <v-btn color="brown-lighten-1" class="mt-3" @click="router.push('/menu')">
+                  Back to Menu
+                </v-btn>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </AppLayout>
+  </v-app>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter,useRoute } from 'vue-router'
+import AppLayout from '@/components/layout/AppLayout.vue'
+
+const router = useRouter();
+const route = useRoute();
+const finishedRecipes = ref([]);
+const currentRecipe = ref(null);
+
+
+// Load all finished recipes
+const loadFinishedRecipes = () => {
+  finishedRecipes.value = JSON.parse(localStorage.getItem('finishedRecipes')) || [];
+}
+
+const loadSpecificRecipe = () => {
+  const recipeId = route.params.recipeId;
+  currentRecipe.value = finishedRecipes.value.find(recipe => recipe.id === recipeId);
+}
+
+// Remove recipe from finishedRecipes
+const removeFinishedRecipe = (index) => {
+  // Remove the recipe from the array
+  finishedRecipes.value.splice(index, 1)
+  
+  // Update localStorage
+  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value))
+}
+
+// Load finished recipes when component is mounted
+onMounted(() => {
+  loadFinishedRecipes();
+  loadSpecificRecipe();
+})
+</script>
+
+
+
+<style scoped>
+.no-dishes-container {
+  min-height: 60vh;
+}
+
+.no-dishes-card {
+  background: #2e2e2e;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+}
+
+::v-deep(.menu-card) {
+  border-radius: 12px;
+  background: #a59d84;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.menu-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+}
+</style>
