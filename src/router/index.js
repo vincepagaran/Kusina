@@ -9,6 +9,7 @@ import MenuDishes from '@/views/system/MenuDishes.vue'
 import AccountSettings from '@/components/system/AccountSettings.vue'
 import BreakfastView from '@/components/categories/BreakfastView.vue'
 import FinishDishes from '@/views/system/FinishDishes.vue'
+import DessertView from '@/components/categories/DessertView.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -57,11 +58,17 @@ const router = createRouter({
       component: BreakfastView, // Add route for BreakfastView
     },
     {
+      path: '/dessert',
+      name: 'dessert',
+      component: DessertView, // Add route for DessertView
+    },
+    {
       path: '/account/settings',
       name: 'accountsettings',
       component: AccountSettings,
       meta: { requiresAuth: true },
     },
+
   ],
 })
 router.beforeEach(async (to) => {
