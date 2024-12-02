@@ -87,7 +87,7 @@ onMounted(() => {
     </template>
 
     <v-card class="mt-1">
-      <v-card-text>
+      <v-card-text >
         <v-list>
           <v-list-item :title="userData.fullname" :subtitle="userData.email">
             <template #prepend>
