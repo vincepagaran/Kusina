@@ -57,12 +57,12 @@ const fetchBreakfastRecipes = async () => {
 // View recipe details
 const viewDetails = async (recipeId) => {
   try {
-    loading.value = true
+    loading.value = true;
     const response = await axios.get('https://www.themealdb.com/api/json/v1/1/lookup.php', {
       params: { i: recipeId }, // Fetch recipe details by ID
-    })
+    });
 
-    const recipeDetails = response.data.meals[0]
+    const recipeDetails = response.data.meals[0];
     selectedRecipe.value = {
       id: recipeDetails.idMeal,
       title: recipeDetails.strMeal,
@@ -70,20 +70,24 @@ const viewDetails = async (recipeId) => {
       summary: recipeDetails.strInstructions,
       ingredients: Object.keys(recipeDetails)
         .filter((key) => key.startsWith('strIngredient') && recipeDetails[key])
-        .map((key, index) => ({
-          name: recipeDetails[key],
-          amount: recipeDetails[`strMeasure${index + 1}`],
-        })),
+        .map((key, index) => {
+          const ingredientName = recipeDetails[key];
+          return {
+            name: ingredientName,
+            amount: recipeDetails[`strMeasure${index + 1}`],
+            image: `https://www.themealdb.com/images/ingredients/${ingredientName}.png`,
+          };
+        }),
       instructions: recipeDetails.strInstructions,
-    }
+    };
 
-    dialog.value = true // Open the dialog
+    dialog.value = true; // Open the dialog
   } catch (error) {
-    console.error('Error fetching recipe details:', error)
+    console.error('Error fetching recipe details:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // Add to Menu
 const addToMenu = (recipe) => {
