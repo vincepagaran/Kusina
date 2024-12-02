@@ -67,157 +67,172 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import router from '@/router';
-import AppLayout from '@/components/layout/AppLayout.vue';
-import axios from 'axios';
+import { ref, computed, watch } from 'vue'
+import router from '@/router'
+import AppLayout from '@/components/layout/AppLayout.vue'
+// import axios from 'axios'
 
 // Menu items state
-const menuItems = ref([]);
+const menuItems = ref([])
 
 // Retrieve the menu items from localStorage (if any)
-const savedMenuItems = JSON.parse(localStorage.getItem('menuItems'));
+const savedMenuItems = JSON.parse(localStorage.getItem('menuItems'))
 if (savedMenuItems) {
-  menuItems.value = savedMenuItems;
+  menuItems.value = savedMenuItems
 }
 
 // State for cooking procedure
-const dialog = ref(false);
-const currentStep = ref(0);
-const recipe = ref(null);
+const dialog = ref(false)
+const currentStep = ref(0)
+const recipe = ref(null)
 
-// Replace Spoonacular API with TheMealDB API
-const API_URL = 'https://www.themealdb.com/api/json/v1/1/random.php';
+// // Replace Spoonacular API with TheMealDB API
+// const API_URL = 'https://www.themealdb.com/api/json/v1/1/random.php'
 
-// Fetch the recipe data from TheMealDB API
-const fetchRecipe = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    const randomRecipe = response.data.meals[0];
-    recipe.value = {
-      title: randomRecipe.strMeal,
-      image: randomRecipe.strMealThumb,
-      ingredients: Array.from({ length: 20 })
-        .map((_, i) => randomRecipe[`strIngredient${i + 1}`]?.trim())
-        .filter((ingredient) => ingredient && ingredient !== ''),
-      steps: randomRecipe.strInstructions.split('.').map((step) => ({
-        description: step.trim(),
-      })),
-    };
-    currentStep.value = 0;
-  } catch (error) {
-    console.error('Error fetching recipe:', error);
-  }
-};
+// // Fetch the recipe data from TheMealDB API
+// const fetchRecipe = async () => {
+//   try {
+//     const response = await axios.get(API_URL)
+//     const randomRecipe = response.data.meals[0]
+//     recipe.value = {
+//       title: randomRecipe.strMeal,
+//       image: randomRecipe.strMealThumb,
+//       ingredients: Array.from({ length: 20 })
+//         .map((_, i) => randomRecipe[`strIngredient${i + 1}`]?.trim())
+//         .filter((ingredient) => ingredient && ingredient !== ''),
+//       steps: randomRecipe.strInstructions.split('.').map((step) => ({
+//         description: step.trim(),
+//       })),
+//     }
+//     currentStep.value = 0
+//   } catch (error) {
+//     console.error('Error fetching recipe:', error)
+//   }
+// }
 
-const isTimerRunning = ref(false);
+const isTimerRunning = ref(false)
 const formattedTime = computed(
   () => `${Math.floor(timer.value / 60)}:${timer.value % 60 < 10 ? '0' : ''}${timer.value % 60}`,
-);
-let timerInterval = null;
+)
+let timerInterval = null
 
 const currentIngredient = computed(() => {
   if (currentStep.value < recipe.value?.ingredients?.length) {
-    return recipe.value.ingredients[currentStep.value];
+    return recipe.value.ingredients[currentStep.value]
   }
-  return '';
-});
+  return ''
+})
 
 const currentStepDescription = computed(() => {
   if (currentStep.value < recipe.value?.steps?.length) {
-    return recipe.value.steps[currentStep.value]?.description;
+    return recipe.value.steps[currentStep.value]?.description
   }
-  return '';
-});
+  return ''
+})
 
 const totalSteps = computed(() => {
-  const ingredientSteps = recipe.value?.ingredients?.length || 0;
-  const cookingSteps = recipe.value?.steps?.length || 0;
-  return ingredientSteps + cookingSteps;
-});
+  const ingredientSteps = recipe.value?.ingredients?.length || 0
+  const cookingSteps = recipe.value?.steps?.length || 0
+  return ingredientSteps + cookingSteps
+})
 
-const timer = ref(30);
+const timer = ref(30)
 
-const startCooking = async () => {
-  await fetchRecipe();
+const startCooking = (selectedRecipe) => {
+  recipe.value = selectedRecipe;
   dialog.value = true;
   currentStep.value = 0;
   isTimerRunning.value = false;
   resetTimer();
 };
 
+
 const resetTimer = () => {
-  timer.value = 30;
-  clearInterval(timerInterval);
-  if (isTimerRunning.value) startTimer();
-};
+  timer.value = 30
+  clearInterval(timerInterval)
+  if (isTimerRunning.value) startTimer()
+}
 
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
-    currentStep.value++;
-    resetTimer();
+    currentStep.value++
+    resetTimer()
   }
-};
+}
 
 const previousStep = () => {
   if (currentStep.value > 0) {
-    currentStep.value--;
-    resetTimer();
+    currentStep.value--
+    resetTimer()
   }
-};
+}
 
 const toggleTimer = () => {
   if (isTimerRunning.value) {
-    clearInterval(timerInterval);
+    clearInterval(timerInterval)
   } else {
-    startTimer();
+    startTimer()
   }
-  isTimerRunning.value = !isTimerRunning.value;
-};
+  isTimerRunning.value = !isTimerRunning.value
+}
 
 const startTimer = () => {
   timerInterval = setInterval(() => {
     if (timer.value > 0) {
-      timer.value--;
+      timer.value--
     } else {
-      clearInterval(timerInterval);
-      isTimerRunning.value = false;
+      clearInterval(timerInterval)
+      isTimerRunning.value = false
     }
-  }, 1000);
-};
+  }, 1000)
+}
 
 const finishCooking = () => {
   const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || [];
-  finishedRecipes.push(recipe.value);
-  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes));
+
+  // Ensure the recipe has a unique ID
+  const finishedRecipe = {
+    id: recipe.value.id || `${recipe.value.title}-${Date.now()}`, 
+    title: recipe.value.title,
+    image: recipe.value.image,
+    ingredients: recipe.value.ingredients,
+    steps: recipe.value.steps
+  };
+
+  // Check if the recipe is already in the list before adding
+  if (!finishedRecipes.some((r) => r.id === finishedRecipe.id)) {
+    finishedRecipes.push(finishedRecipe);
+    localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes));
+  }
 
   dialog.value = false;
-  currentStep.value = 0;
   clearInterval(timerInterval);
 
-  alert('Congratulations, you’ve finished cooking! Enjoy your meal.');
-  router.push({ name: 'finishrecipe', params: { recipeId: recipe.value.id } });
+  // Navigate to finish vue with the correct ID
+  router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.id } });
 };
+
+
 
 const removeFromMenu = (index) => {
-  menuItems.value.splice(index, 1);
-  localStorage.setItem('menuItems', JSON.stringify(menuItems.value));
-};
+  menuItems.value.splice(index, 1)
+  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
+}
 
 watch(currentStep, (newStep) => {
-  console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`);
-});
+  console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`)
+})
 
 watch(timer, (newValue) => {
   if (newValue <= 0) {
-    clearInterval(timerInterval);
-    isTimerRunning.value = false;
+    clearInterval(timerInterval)
+    isTimerRunning.value = false
     if (currentStep.value < totalSteps.value - 1) {
-      currentStep.value++;
-      resetTimer();
+      currentStep.value++
+      resetTimer()
     }
   }
-});
+})
 </script>
 
 <style scoped>
