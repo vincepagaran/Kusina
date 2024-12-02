@@ -1,53 +1,53 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { supabase } from '@/utils/supabase';
-import { useRouter } from 'vue-router';
-import AppLayout from '@/components/layout/AppLayout.vue';
+import { ref, onMounted, watch } from 'vue'
+import axios from 'axios'
+import { supabase } from '@/utils/supabase'
+import { useRouter } from 'vue-router'
+import AppLayout from '@/components/layout/AppLayout.vue'
 
-const router = useRouter();
-const user = ref(null);
+const router = useRouter()
+const user = ref(null)
 
 // State variables
-const recipes = ref([]); // Stores the fetched recipes
-const selectedRecipe = ref(null); // Stores detailed recipe information
-const loading = ref(false); // Indicates loading state
-const searchQuery = ref(''); // Stores the user's search input
-const dialog = ref(false);
-const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false); // Load state from localStorage
+const recipes = ref([]) // Stores the fetched recipes
+const selectedRecipe = ref(null) // Stores detailed recipe information
+const loading = ref(false) // Indicates loading state
+const searchQuery = ref('') // Stores the user's search input
+const dialog = ref(false)
+const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false) // Load state from localStorage
 
 onMounted(async () => {
-  const { data: currentUser, error } = await supabase.auth.getUser();
+  const { data: currentUser, error } = await supabase.auth.getUser()
   if (error) {
-    console.error('Error fetching user:', error.message);
-    router.replace('/login'); // Redirect to login if there's an error
+    console.error('Error fetching user:', error.message)
+    router.replace('/login') // Redirect to login if there's an error
   } else if (!currentUser) {
-    router.replace('/login'); // Redirect to login if no user is logged in
+    router.replace('/login') // Redirect to login if no user is logged in
   } else {
-    user.value = currentUser.user;
+    user.value = currentUser.user
   }
-});
+})
 
 // Search recipes based on the query
 const searchRecipes = async () => {
   if (!searchQuery.value) {
-    recipes.value = []; // Clear recipes if search query is empty
-    return;
+    recipes.value = [] // Clear recipes if search query is empty
+    return
   }
 
-  loading.value = true;
+  loading.value = true
   try {
     const response = await axios.get('https://www.themealdb.com/api/json/v1/1/search.php', {
       params: { s: searchQuery.value }, // Search for recipes by name
-    });
+    })
 
-    recipes.value = response.data.meals || []; // Assign results or empty array
+    recipes.value = response.data.meals || [] // Assign results or empty array
   } catch (error) {
-    console.error('Error searching recipes:', error);
+    console.error('Error searching recipes:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // View recipe details
 const viewDetails = async (recipeId) => {
@@ -65,10 +65,14 @@ const viewDetails = async (recipeId) => {
       summary: recipeDetails.strInstructions,
       ingredients: Object.keys(recipeDetails)
         .filter((key) => key.startsWith('strIngredient') && recipeDetails[key])
-        .map((key, index) => ({
-          name: recipeDetails[key],
-          amount: recipeDetails[`strMeasure${index + 1}`],
-        })),
+        .map((key, index) => {
+          const ingredientName = recipeDetails[key];
+          return {
+            name: ingredientName,
+            amount: recipeDetails[`strMeasure${index + 1}`],
+            image: `https://www.themealdb.com/images/ingredients/${ingredientName}.png`,
+          };
+        }),
       instructions: recipeDetails.strInstructions,
     };
 
@@ -82,33 +86,31 @@ const viewDetails = async (recipeId) => {
 
 // Add to Menu
 const addToMenu = (recipe) => {
-  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
-  savedMenuItems.push(recipe);
-  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems));
-  router.push({ name: 'menu' });
-};
+  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || []
+  savedMenuItems.push(recipe)
+  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems))
+  router.push({ name: 'menu' })
+}
 
 // Function to close the dialog
 const closeDialog = () => {
-  selectedRecipe.value = null;
-};
+  selectedRecipe.value = null
+}
 
 // Watch and save drawer state
 watch(drawer, (newState) => {
-  localStorage.setItem('drawerState', JSON.stringify(newState));
-});
+  localStorage.setItem('drawerState', JSON.stringify(newState))
+})
 
 // Automatically fetch recipes when the query changes
 watch(searchQuery, (newQuery) => {
   if (newQuery) {
-    searchRecipes();
+    searchRecipes()
   } else {
-    recipes.value = []; // Clear recipes when query is empty
+    recipes.value = [] // Clear recipes when query is empty
   }
-});
+})
 </script>
-
-
 
 <template>
   <v-app>
@@ -116,11 +118,8 @@ watch(searchQuery, (newQuery) => {
       <!-- Main Content -->
       <v-main>
         <v-container>
-
           <!-- Title -->
-          <h1 class="text-center title-text" style="color: #e2dfd0">
-            What do you want to make?
-          </h1>
+          <h1 class="text-center title-text" style="color: #e2dfd0">What do you want to make?</h1>
           <!-- Search Bar -->
           <v-text-field
             v-model="searchQuery"
@@ -137,10 +136,10 @@ watch(searchQuery, (newQuery) => {
           <v-container>
             <v-row>
               <v-col cols="12">
-                <h1 style="color: #e2dfd0;">Result :</h1>
+                <h1 style="color: #e2dfd0">Result :</h1>
               </v-col>
               <!-- Loading Spinner -->
-              <v-col cols="12" v-if="loading" style="height: 100px;">
+              <v-col cols="12" v-if="loading" style="height: 100px">
                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
               </v-col>
 
@@ -150,7 +149,11 @@ watch(searchQuery, (newQuery) => {
                   <v-img :src="recipe.strMealThumb" height="200px"></v-img>
                   <v-card-title>{{ recipe.strMeal }}</v-card-title>
                   <v-card-actions>
-                    <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="viewDetails(recipe.idMeal)">View Details</v-btn>
+                    <v-btn
+                      style="background-color: #8d6e63; color: #e2dfd0"
+                      @click="viewDetails(recipe.idMeal)"
+                      >View Details</v-btn
+                    >
                   </v-card-actions>
                 </v-card>
               </v-col>
@@ -184,8 +187,14 @@ watch(searchQuery, (newQuery) => {
 
               <!-- Actions -->
               <v-card-actions>
-                <v-btn style="background-color: #8D6E63; color: #e2dfd0;" text @click="closeDialog">Close</v-btn>
-                <v-btn style="background-color: #8D6E63; color: #e2dfd0;" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
+                <v-btn style="background-color: #8d6e63; color: #e2dfd0" text @click="closeDialog"
+                  >Close</v-btn
+                >
+                <v-btn
+                  style="background-color: #8d6e63; color: #e2dfd0"
+                  @click="addToMenu(selectedRecipe)"
+                  >Add to Menu</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -194,9 +203,6 @@ watch(searchQuery, (newQuery) => {
     </AppLayout>
   </v-app>
 </template>
-
-
-
 
 <style scoped>
 /* General styles */
@@ -214,7 +220,7 @@ body {
   margin-left: auto;
   margin-right: auto;
   background-color: #ffffff;
-  color: #1B1833;
+  color: #1b1833;
   border-radius: 30px;
   transition: transform 0.2s ease-in-out;
 }
@@ -225,21 +231,29 @@ body {
 
 /* Title Styling */
 .title-text {
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin: 20px 0;
-  color: #555555;
+  margin: 30px 0;
+  color: #333;
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Recipe Card Styling */
 .v-card {
-  border-radius: 15px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 20px;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  height: 50vh;
-  background-color: #DCEDC8;
+  background-color: #fff;
+  overflow: hidden;
+  margin: auto;
+  margin-top: 50px;
+  max-height: 450px;
+  width: 100%; /* Ensures it takes full width of the parent column */
+  max-width: 320px; /* Sets the maximum width for the card */
+  flex: 1 1 320px; /* Flex with a base width, allowing for responsive scaling */
 }
 
 .v-card:hover {
@@ -248,38 +262,57 @@ body {
 }
 
 .v-img {
-  margin-top: 10px;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+  height: 200px; /* Fixed image height */
   object-fit: cover;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .v-card-title {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #333333;
+  color: #333;
+  text-align: center;
+  padding: 10px 0;
 }
 
 .v-card-actions {
   padding: 10px;
-  justify-content: center;  /* Center the button horizontally */
-  position: relative;
-  bottom: 20px; /* Add space at the bottom */
+  justify-content: center;
+  background-color: #f5f5f5;
   left: 50%;
-  transform: translateX(-50%); /* Center the button horizontally */
-  margin-top: -20px; /* Move the button up */
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
-/* Dialog Content */
-/* .v-dialog {
-  border-radius: 15px;
-  padding: 16px;
-  background-color: #ffffff;
-} */
+.v-btn {
+  background-color: #8d6e63;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 30px;
+  text-transform: capitalize;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.v-btn:hover {
+  background-color: #7b5e4a;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.v-btn.secondary {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.v-btn.secondary:hover {
+  background-color: #45a045;
+}
 
 .v-card-title {
-  font-weight: bold;
   font-size: 1.5rem;
+  font-weight: bold;
   color: #555555;
   text-align: center;
   margin-bottom: 16px;
@@ -298,6 +331,7 @@ ul {
 li {
   font-size: 1rem;
   line-height: 1.6;
+  margin-bottom: 10px;
 }
 
 /* Loading Spinner */
@@ -306,41 +340,39 @@ li {
   margin: 20px auto;
 }
 
-/* Button Styling */
-.v-btn {
-  background-color: #ff6f61;
-  color: #ffffff;
-  border-radius: 30px;
-  padding: 8px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.v-btn:hover {
-  background-color: #e65550;
-  transform: translateY(-2px);
-}
-
-/* Dialog Buttons */
-.v-btn.secondary {
-  background-color: #4caf50;
-}
-
-.v-btn.secondary:hover {
-  background-color: #45a045;
-}
-
 /* Responsive Design */
 @media (max-width: 600px) {
+  .v-card {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    max-width: 90%; /* Makes the card width smaller on small screens */
+  }
+
+  .v-card-title {
+    font-size: 1rem;
+  }
+
+  .v-btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 400px) {
   .title-text {
     font-size: 2rem;
   }
 
-  .v-card {
-    margin-bottom: 16px;
+  .v-card-title {
+    font-size: 1rem;
+  }
+
+  .v-btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
   }
 }
+
 /* Additional Animations */
 .v-card:hover,
 .v-btn:hover {

@@ -41,13 +41,26 @@
                 <h2>{{ currentStep + 1 }} / {{ totalSteps }}</h2>
               </v-card-title>
               <v-card-text>
-                <h3>Ingredients</h3>
-                <p>{{ currentIngredient }}</p>
+                <h3 style="color: #4caf50; font-weight: bold">Ingredients:</h3>
+                <v-sheet class="ingredient-display" elevation="2">
+                  <v-row align="center">
+                    <v-col cols="4">
+                      <v-img
+                        :src="currentIngredient.image"
+                        alt="Ingredient Image"
+                        class="ingredient-image"
+                        contain
+                      ></v-img>
+                    </v-col>
+                    <v-col cols="8">
+                      <h4 class="ingredient-name">{{ currentIngredient.name }}</h4>
+                      <p class="ingredient-amount">{{ currentIngredient.amount }}</p>
+                    </v-col>
+                  </v-row>
+                </v-sheet>
 
                 <div v-if="currentStep < totalSteps - 1">
                   <p><strong>Step:</strong> {{ currentStepDescription }}</p>
-                  <p><strong>Time Remaining:</strong> {{ formattedTime }}</p>
-
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
                   <v-btn @click="skipStep" :disabled="isTimerRunning">Skip</v-btn>
                   <v-btn @click="toggleTimer">{{ isTimerRunning ? 'Pause' : 'Start Timer' }}</v-btn>
@@ -142,16 +155,7 @@ const startCooking = (selectedRecipe) => {
   recipe.value = selectedRecipe;
   dialog.value = true;
   currentStep.value = 0;
-  isTimerRunning.value = false;
-  resetTimer();
 };
-
-
-const resetTimer = () => {
-  timer.value = 30
-  clearInterval(timerInterval)
-  if (isTimerRunning.value) startTimer()
-}
 
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
@@ -188,7 +192,7 @@ const startTimer = () => {
 }
 
 const finishCooking = () => {
-  const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || [];
+  const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || []
 
   // Ensure the recipe has a unique ID
   const finishedRecipe = {
@@ -196,23 +200,18 @@ const finishCooking = () => {
     title: recipe.value.title,
     image: recipe.value.image,
     ingredients: recipe.value.ingredients,
-    steps: recipe.value.steps
+    steps: recipe.value.steps,
   };
 
   // Check if the recipe is already in the list before adding
   if (!finishedRecipes.some((r) => r.id === finishedRecipe.id)) {
-    finishedRecipes.push(finishedRecipe);
-    localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes));
+    finishedRecipes.push(finishedRecipe)
+    localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes))
   }
 
   dialog.value = false;
-  clearInterval(timerInterval);
-
-  // Navigate to finish vue with the correct ID
   router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.id } });
 };
-
-
 
 const removeFromMenu = (index) => {
   menuItems.value.splice(index, 1)
@@ -268,5 +267,27 @@ h1 {
 .menu-card-img {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+}
+.ingredient-display {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-name {
+  font-size: 1.5rem;
+  color: #2e2e2e;
+  font-weight: bold;
+}
+
+.ingredient-amount {
+  font-size: 1.2rem;
+  color: #757575;
+  margin-top: 4px;
+  font-style: italic;
 }
 </style>
