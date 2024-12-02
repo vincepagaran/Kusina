@@ -10,6 +10,7 @@ import AccountSettings from '@/components/system/AccountSettings.vue'
 import BreakfastView from '@/components/categories/BreakfastView.vue'
 import FinishDishes from '@/views/system/FinishDishes.vue'
 import DessertView from '@/components/categories/DessertView.vue'
+import VegetarianView from '@/components/categories/VegetarianView.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -61,6 +62,11 @@ const router = createRouter({
       path: '/dessert',
       name: 'dessert',
       component: DessertView, // Add route for DessertView
+    },
+    {
+      path: '/vegetarian',
+      name: 'vegetarian',
+      component: VegetarianView, // Add route for VegetarianView
     },
     {
       path: '/account/settings',
