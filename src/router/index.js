@@ -11,6 +11,7 @@ import BreakfastView from '@/components/categories/BreakfastView.vue'
 import FinishDishes from '@/views/system/FinishDishes.vue'
 import DessertView from '@/components/categories/DessertView.vue'
 import VegetarianView from '@/components/categories/VegetarianView.vue'
+import SeafoodView from '@/components/categories/SeafoodView.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -67,6 +68,11 @@ const router = createRouter({
       path: '/vegetarian',
       name: 'vegetarian',
       component: VegetarianView, // Add route for VegetarianView
+    },
+    {
+      path: '/seafood',
+      name: 'seafood',
+      component: SeafoodView, // Add route for SeafoodView
     },
     {
       path: '/account/settings',
