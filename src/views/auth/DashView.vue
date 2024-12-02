@@ -15,7 +15,7 @@ function navigateTo(route) {
 let textIndex1 = 0;
 let textIndex2 = 0;
 const phrases1 = ["Welcome to Kusina"];
-const phrases2 = ["Your go to place Filipino Dishes"];
+const phrases2 = ["Your go to place on Cooking Dishes"];
 const animatedText1 = ref("");
 const animatedText2 = ref("");
 
