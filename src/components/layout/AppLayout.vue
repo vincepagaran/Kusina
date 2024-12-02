@@ -88,7 +88,7 @@ onMounted(() => {
             title="Finished Recipes"
             variant="outlined"
             style="background-color: #a59d84; margin-bottom: 8px; border-radius: 4px"
-            @click="router.push('/finishedrecipes')"
+            @click="router.push('/finishdishes')"
           >
           </v-list-item>
 

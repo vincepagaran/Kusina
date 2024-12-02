@@ -7,6 +7,7 @@ import DishesView from '@/views/system/DishesView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import MenuDishes from '@/views/system/MenuDishes.vue'
 import AccountSettings from '@/components/system/AccountSettings.vue'
+import BreakfastView from '@/components/categories/BreakfastView.vue'
 import FinishDishes from '@/views/system/FinishDishes.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
@@ -49,6 +50,11 @@ const router = createRouter({
       path: '/finishdishes',
       name: 'finishdishes',
       component: FinishDishes,
+    },
+    {
+      path: '/breakfast',
+      name: 'breakfast',
+      component: BreakfastView, // Add route for BreakfastView
     },
     {
       path: '/account/settings',
