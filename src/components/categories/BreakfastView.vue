@@ -178,7 +178,7 @@ watch(drawer, (newState) => {
 
           <!-- Dialog Actions -->
           <v-card-actions>
-            <v-btn style="color: #e2dfd0;"@click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
+            <v-btn style="color: #e2dfd0;" @click="addToMenu(selectedRecipe)">Add to Menu</v-btn>
             <v-spacer></v-spacer>
             <v-btn style="color: #e2dfd0;" @click="closeDialog">Close</v-btn>
           </v-card-actions>

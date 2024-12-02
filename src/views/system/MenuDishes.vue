@@ -12,8 +12,8 @@
                 <v-img :src="recipe.image" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
-                  <v-btn color="primary" @click="startCooking(recipe)">Start Cooking</v-btn>
-                  <v-btn color="red" @click="removeFromMenu(index)">Delete</v-btn>
+                  <v-btn style="background-color: #8d6e63; color: #e2dfd0;" @click="startCooking(recipe)">Start Cooking</v-btn>
+                  <v-btn style="background-color: #8d6e63; color: #fff;" @click="removeFromMenu(index)">Delete</v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
