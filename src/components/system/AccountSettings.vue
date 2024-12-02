@@ -33,11 +33,6 @@ onMounted(async () => {
             </v-breadcrumbs>
           </span>
         </v-card-title>
-        <v-card-subtitle >
-          <p class="ms-4 text-wrap" style="color: #E2DFD0;">
-            Edit profile information, update profile picture, and change password.
-          </p>
-        </v-card-subtitle>
       </v-card>
 
       <v-row justify="center" >

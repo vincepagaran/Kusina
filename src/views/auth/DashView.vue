@@ -95,7 +95,7 @@ onMounted(() => {
   height: 90vh; /* Full height for the hero section */
   text-align: center;
   padding: 100px 20px;
-  background: url('/pics/gif.gif') no-repeat center center fixed;
+  background: url('/pics/CookingGIF.gif') no-repeat center center fixed;
   background-size: cover; /* Ensures the GIF covers the full container */
   animation: moveBackground 10s linear infinite; /* Adding animation for movement */
   color: #ffffff; /* White text */
