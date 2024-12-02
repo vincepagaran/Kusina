@@ -86,10 +86,10 @@ onMounted(() => {
       </v-btn>
     </template>
 
-    <v-card class="mt-1">
-      <v-card-text>
-        <v-list>
-          <v-list-item :title="userData.fullname" :subtitle="userData.email">
+    <v-card class="mt-1" style="background-color: transparent; backdrop-filter: blur(25px); color: #e2dfd0">
+      <v-card-text >
+        <v-list style="background-color: transparent; backdrop-filter: blur(25px); color: #e2dfd0">
+          <v-list-item :title="userData.fullname" :subtitle="userData.email" >
             <template #prepend>
               <v-avatar v-if="authStore.userData?.image_url" :image="authStore.userData.image_url" color="grey-darken-3" size="large"></v-avatar>
               <v-avatar v-else color="grey-darken-3" size="large">

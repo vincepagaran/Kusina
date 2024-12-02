@@ -34,14 +34,14 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
   <v-app>
     <AppLayout>
       <!-- Main Content -->
-      <v-main style="background: url(/pics/CookingGIF.gif); min-height: 100vh; background-size: cover;">
+      <v-main style="background: url(/pics/bg3.jpg); min-height: 100vh; background-size: cover;">
         <v-container class="d-flex justify-start align-start" style="height: 100vh;">
           <!-- Content Section -->
           <v-row class="text-left" align="start" justify="start">
             <v-col cols="12" md="8">
               <!-- Header Section -->
-              <h1 class="display-1 font-weight-bold text-uppercase" style="color: #ffff; margin-top: 250px;">
-                Cook like<span class="highlight-text" style="color: #ffff;"> a Pro <br>with Our Simple Recipes</span>
+              <h1 class="display-1 font-weight-bold text-uppercase" style="color: #e2dfd0; margin-top: 250px;">
+                Cook like<span class="highlight-text" style="color: #e2dfd0;"> a Pro <br>with Our Simple Recipes</span>
               </h1>
               <!-- Button Section -->
               <div class="button mt-6">
@@ -50,12 +50,12 @@ drawer.value = JSON.parse(localStorage.getItem('drawerState')) || false
                   class="view-dishes-btn"
                   color="#e2dfd0"
                   large
-                  style="transition: background-color 0.3s ease, transform 0.2s ease; width: 250px; height: 50px; border-radius: 0;"
+                  style="transition: background-color 0.3s ease, transform 0.2s ease; width: 250px; height: 50px; border-radius: 0; background-color: #8d6e63 ; color: #e2dfd0; "
                   @mouseover="hover = true"
                   @mouseleave="hover = false"
                   :style="{ transform: hover ? 'scale(1.05)' : 'scale(1)' }"
                 >
-                  View Dishes
+                  Find Dishes
                 </v-btn>
               </div>
             </v-col>
