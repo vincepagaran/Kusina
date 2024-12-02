@@ -46,8 +46,11 @@
 
                 <div v-if="currentStep < totalSteps - 1">
                   <p><strong>Step:</strong> {{ currentStepDescription }}</p>
+                  <p><strong>Time Remaining:</strong> {{ formattedTime }}</p>
+
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
-                  <v-btn @click="skipStep">Skip</v-btn>
+                  <v-btn @click="skipStep" :disabled="isTimerRunning">Skip</v-btn>
+                  <v-btn @click="toggleTimer">{{ isTimerRunning ? 'Pause' : 'Start Timer' }}</v-btn>
                 </div>
 
                 <div v-else>
@@ -67,6 +70,7 @@
 import { ref, computed, watch } from 'vue'
 import router from '@/router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+// import axios from 'axios'
 
 // Menu items state
 const menuItems = ref([])
@@ -81,6 +85,36 @@ if (savedMenuItems) {
 const dialog = ref(false)
 const currentStep = ref(0)
 const recipe = ref(null)
+
+// // Replace Spoonacular API with TheMealDB API
+// const API_URL = 'https://www.themealdb.com/api/json/v1/1/random.php'
+
+// // Fetch the recipe data from TheMealDB API
+// const fetchRecipe = async () => {
+//   try {
+//     const response = await axios.get(API_URL)
+//     const randomRecipe = response.data.meals[0]
+//     recipe.value = {
+//       title: randomRecipe.strMeal,
+//       image: randomRecipe.strMealThumb,
+//       ingredients: Array.from({ length: 20 })
+//         .map((_, i) => randomRecipe[`strIngredient${i + 1}`]?.trim())
+//         .filter((ingredient) => ingredient && ingredient !== ''),
+//       steps: randomRecipe.strInstructions.split('.').map((step) => ({
+//         description: step.trim(),
+//       })),
+//     }
+//     currentStep.value = 0
+//   } catch (error) {
+//     console.error('Error fetching recipe:', error)
+//   }
+// }
+
+const isTimerRunning = ref(false)
+const formattedTime = computed(
+  () => `${Math.floor(timer.value / 60)}:${timer.value % 60 < 10 ? '0' : ''}${timer.value % 60}`,
+)
+let timerInterval = null
 
 const currentIngredient = computed(() => {
   if (currentStep.value < recipe.value?.ingredients?.length) {
@@ -102,22 +136,55 @@ const totalSteps = computed(() => {
   return ingredientSteps + cookingSteps
 })
 
+const timer = ref(30)
+
 const startCooking = (selectedRecipe) => {
   recipe.value = selectedRecipe;
   dialog.value = true;
   currentStep.value = 0;
+  isTimerRunning.value = false;
+  resetTimer();
 };
+
+
+const resetTimer = () => {
+  timer.value = 30
+  clearInterval(timerInterval)
+  if (isTimerRunning.value) startTimer()
+}
 
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
     currentStep.value++
+    resetTimer()
   }
 }
 
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
+    resetTimer()
   }
+}
+
+const toggleTimer = () => {
+  if (isTimerRunning.value) {
+    clearInterval(timerInterval)
+  } else {
+    startTimer()
+  }
+  isTimerRunning.value = !isTimerRunning.value
+}
+
+const startTimer = () => {
+  timerInterval = setInterval(() => {
+    if (timer.value > 0) {
+      timer.value--
+    } else {
+      clearInterval(timerInterval)
+      isTimerRunning.value = false
+    }
+  }, 1000)
 }
 
 const finishCooking = () => {
@@ -125,11 +192,11 @@ const finishCooking = () => {
 
   // Ensure the recipe has a unique ID
   const finishedRecipe = {
-    id: recipe.value.id || `${recipe.value.title}-${Date.now()}`,
+    id: recipe.value.id || `${recipe.value.title}-${Date.now()}`, 
     title: recipe.value.title,
     image: recipe.value.image,
     ingredients: recipe.value.ingredients,
-    steps: recipe.value.steps,
+    steps: recipe.value.steps
   };
 
   // Check if the recipe is already in the list before adding
@@ -139,8 +206,13 @@ const finishCooking = () => {
   }
 
   dialog.value = false;
+  clearInterval(timerInterval);
+
+  // Navigate to finish vue with the correct ID
   router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.id } });
 };
+
+
 
 const removeFromMenu = (index) => {
   menuItems.value.splice(index, 1)
@@ -149,6 +221,17 @@ const removeFromMenu = (index) => {
 
 watch(currentStep, (newStep) => {
   console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`)
+})
+
+watch(timer, (newValue) => {
+  if (newValue <= 0) {
+    clearInterval(timerInterval)
+    isTimerRunning.value = false
+    if (currentStep.value < totalSteps.value - 1) {
+      currentStep.value++
+      resetTimer()
+    }
+  }
 })
 </script>
 
