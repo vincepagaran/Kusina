@@ -12,7 +12,7 @@
                 <v-img :src="recipe.image" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
-                  <v-btn color="red" @click="removeFinishedRecipe(index)">Remove</v-btn>
+                  <v-btn style="background-color: #8d6e63; color: #fff;" @click="confirmDelete(index)">Remove</v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -40,14 +40,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter,useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 
 const router = useRouter();
 const route = useRoute();
 const finishedRecipes = ref([]);
 const currentRecipe = ref(null);
-
 
 // Load all finished recipes
 const loadFinishedRecipes = () => {
@@ -59,13 +58,18 @@ const loadSpecificRecipe = () => {
   currentRecipe.value = finishedRecipes.value.find(recipe => recipe.id === recipeId);
 }
 
+// Confirm deletion and then remove the recipe
+const confirmDelete = (index) => {
+  const isConfirmed = confirm("Are you sure you want to remove this Dish?");
+  if (isConfirmed) {
+    removeFinishedRecipe(index);
+  }
+}
+
 // Remove recipe from finishedRecipes
 const removeFinishedRecipe = (index) => {
-  // Remove the recipe from the array
-  finishedRecipes.value.splice(index, 1)
-  
-  // Update localStorage
-  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value))
+  finishedRecipes.value.splice(index, 1);
+  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value));
 }
 
 // Load finished recipes when component is mounted
@@ -74,8 +78,6 @@ onMounted(() => {
   loadSpecificRecipe();
 })
 </script>
-
-
 
 <style scoped>
 .no-dishes-container {
