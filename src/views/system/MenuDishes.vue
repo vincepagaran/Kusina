@@ -12,8 +12,8 @@
                 <v-img :src="recipe.image" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
-                  <v-btn color="primary" @click="startCooking(recipe)">Start Cooking</v-btn>
-                  <v-btn color="red" @click="removeFromMenu(index)">Delete</v-btn>
+                 <v-btn style="background-color: #8d6e63; color: #e2dfd0;" @click="startCooking(recipe)">Start Cooking</v-btn>
+                  <v-btn style="background-color: #8d6e63; color: #fff;" @click="confirmDelete(index)">Delete</v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -58,13 +58,16 @@
                     </v-col>
                   </v-row>
                 </v-sheet>
-
+                <v-card-text>
+                  <h3><strong style="color: #4caf50; font-weight: bold">Instructions:</strong></h3>
+                  <div v-html="recipe.instructions"></div>
+                </v-card-text>
+                
                 <div v-if="currentStep < totalSteps - 1">
-                  <p><strong></strong> {{ currentStepDescription }}</p>
+                
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
-                  <v-btn @click="skipStep">Skip</v-btn>
+                  <v-btn @click="skipStep">Next</v-btn>
                 </div>
-
                 <div v-else>
                   <p><strong>Cooking complete!</strong></p>
                   <v-btn color="green" @click="finishCooking">Finish</v-btn>
@@ -104,12 +107,7 @@ const currentIngredient = computed(() => {
   return ''
 })
 
-const currentStepDescription = computed(() => {
-  if (currentStep.value < recipe.value?.steps?.length) {
-    return recipe.value.steps[currentStep.value]?.description
-  }
-  return ''
-})
+
 
 const totalSteps = computed(() => {
   const ingredientSteps = recipe.value?.ingredients?.length || 0
@@ -117,24 +115,42 @@ const totalSteps = computed(() => {
   return ingredientSteps + cookingSteps
 })
 
+// Remove dish from the menu
+const removeFromMenu = (index) => {
+  menuItems.value.splice(index, 1)
+  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
+}
+
+// Confirm deletion of the dish
+const confirmDelete = (index) => {
+  const isConfirmed = confirm("Are you sure you want to delete this dish?")
+  if (isConfirmed) {
+    removeFromMenu(index)
+  }
+}
+
+// Start cooking process
 const startCooking = (selectedRecipe) => {
   recipe.value = selectedRecipe
   dialog.value = true
   currentStep.value = 0
 }
 
+// Skip current step
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
     currentStep.value++
   }
 }
 
+// Go to previous step
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
 }
 
+// Finish cooking process
 const finishCooking = () => {
   const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || []
 
@@ -145,6 +161,7 @@ const finishCooking = () => {
     image: recipe.value.image,
     ingredients: recipe.value.ingredients,
     steps: recipe.value.steps,
+    instructions: recipe.value.instructions
   }
 
   // Check if the recipe is already in the list before adding
@@ -155,11 +172,6 @@ const finishCooking = () => {
 
   dialog.value = false
   router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.id } })
-}
-
-const removeFromMenu = (index) => {
-  menuItems.value.splice(index, 1)
-  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
 }
 
 watch(currentStep, (newStep) => {
