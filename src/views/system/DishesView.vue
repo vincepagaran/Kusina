@@ -73,7 +73,7 @@ const viewDetails = async (recipeId) => {
             image: `https://www.themealdb.com/images/ingredients/${ingredientName}.png`,
           };
         }),
-      instructions: recipeDetails.strInstructions,
+       instructions: recipeDetails.strInstructions.split('\n')
     };
 
     dialog.value = true; // Open the dialog

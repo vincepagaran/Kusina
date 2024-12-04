@@ -22,25 +22,10 @@
                     style="background-color: #8d6e63; color: #fff"
                     :loading="loading"
                     :disabled="loading"
-                    @click="confirmDelete(recipe.id,index)"
+                    @click="confirmDelete(recipe.id, index)"
                     >Delete</v-btn
                   >
                 </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <v-row v-else class="no-dishes-container">
-            <v-col cols="12" class="d-flex flex-column align-center justify-center text-center">
-              <v-card class="no-dishes-card pa-5">
-                <v-icon icon="mdi-food-off" size="60" color="grey"></v-icon>
-                <h2 class="mt-3" style="color: #e2dfd0">No Dishes Added</h2>
-                <p style="color: #bdbdbd">
-                  It seems like your menu is empty. Start adding some delicious recipes!
-                </p>
-                <v-btn color="brown-lighten-1" class="mt-3" @click="router.push('/dishes')">
-                  Tap here to add Dishes
-                </v-btn>
               </v-card>
             </v-col>
           </v-row>
@@ -49,11 +34,25 @@
           <v-dialog v-model="dialog" max-width="600px">
             <v-card>
               <v-card-title>
-                <h2>{{ currentStep + 1 }} / {{ totalSteps }}</h2>
+                <h2 v-if="currentStep < totalSteps - 1">Step {{ currentStep + 1 }}</h2>
+                <h2 v-else>Well Done!</h2>
+                <!-- Updated Step Display -->
               </v-card-title>
               <v-card-text>
-                <h3 style="color: #4caf50; font-weight: bold">Ingredients:</h3>
-                <v-sheet class="ingredient-display" elevation="2">
+                <h3 v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
+                  <strong style="color: #4caf50; font-weight: bold">
+                    {{ currentStep < totalSteps - 1 ? 'Ingredients:' : 'Well Done!' }}
+                  </strong>
+                </h3>
+
+                <!-- Ingredient display section -->
+                <v-sheet
+                  class="ingredient-display"
+                  elevation="2"
+                  v-if="
+                    currentIngredient.name || currentIngredient.amount || currentIngredient.image
+                  "
+                >
                   <v-row align="center">
                     <v-col cols="4">
                       <v-img
@@ -69,18 +68,25 @@
                     </v-col>
                   </v-row>
                 </v-sheet>
-                <v-card-text>
-                  <h3><strong style="color: #4caf50; font-weight: bold">Instructions:</strong></h3>
-                  <div v-html="recipe.instructions"></div>
-                </v-card-text>
 
+                <!-- Instructions display section -->
+                <h3 v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
+                  <strong style="color: #4caf50; font-weight: bold">Instructions:</strong>
+                </h3>
+                <div v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
+                  <p>{{ recipe.steps[currentStep] }}</p>
+                </div>
+
+                <!-- Buttons -->
                 <div v-if="currentStep < totalSteps - 1">
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
                   <v-btn @click="skipStep">Next</v-btn>
                 </div>
                 <div v-else>
-                  <p><strong>Cooking complete!</strong></p>
-                  <v-btn color="green" @click="finishCooking">Finish</v-btn>
+                  <!-- "Well Done!" message -->
+                  <v-btn style="background-color: #8d6e63; color: #fff" @click="finishCooking"
+                    >Finish</v-btn
+                  >
                 </div>
               </v-card-text>
             </v-card>
@@ -104,7 +110,7 @@ const fetchMenuItems = async () => {
   try {
     const { data, error } = await supabase
       .from('menus')
-      .select('id, title, ingredients, instructions, image_url') // Include ingredients_image here
+      .select('id, title, ingredients, instructions, image_url')
 
     if (error) {
       console.error('Error fetching menu items:', error)
@@ -120,12 +126,6 @@ onMounted(() => {
   fetchMenuItems()
 })
 
-// Retrieve the menu items from localStorage (if any)
-const savedMenuItems = JSON.parse(localStorage.getItem('menuItems'))
-if (savedMenuItems) {
-  menuItems.value = savedMenuItems
-}
-
 // State for cooking procedure
 const dialog = ref(false)
 const currentStep = ref(0)
@@ -136,7 +136,7 @@ const currentIngredient = computed(() => {
     const ingredient = recipe.value.ingredients[currentStep.value]
     return {
       ...ingredient,
-      image: ingredient.image || ingredient.ingredients_image, // Use ingredients_image if image is missing
+      image: ingredient.image || ingredient.ingredients_image,
     }
   }
   return ''
@@ -148,43 +148,29 @@ const totalSteps = computed(() => {
   return ingredientSteps + cookingSteps
 })
 
-// Remove dish from the menu
-const removeFromMenu = async (recipeId, index) => {
-  try {
-    const { error } = await supabase.from('menus').delete().eq('id', recipeId)
-
-    if (error) {
-      console.error('Error deleting recipe from Supabase:', error)
-      alert('Failed to delete the recipe. Please try again.')
-    } else {
-      menuItems.value.splice(index, 1)
-      localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
-      alert('Recipe successfully deleted!')
-    }
-  } catch (error) {
-    console.error('Unexpected error:', error)
-  }
-}
-
-// Confirm deletion of the dish
-const confirmDelete = (recipeId, index) => {
-  if (confirm('Are you sure you want to delete this dish?')) {
-    removeFromMenu(recipeId, index)
-  }
-}
-
-// Start cooking process
+// Start cooking and prepare instructions
 const startCooking = (selectedRecipe) => {
   recipe.value = selectedRecipe
+  recipe.value.steps = recipe.value.instructions.split('\n')
   dialog.value = true
   currentStep.value = 0
 }
 
-// Skip current step
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
-    currentStep.value++
+    // Skip empty steps that do not have instructions or ingredients
+    while (currentStep.value < totalSteps.value - 1 && !hasContentForStep(currentStep.value + 1)) {
+      currentStep.value++
+    }
+    currentStep.value++ // Move to the next step (non-empty)
   }
+}
+
+const hasContentForStep = (stepIndex) => {
+  // Check if the step contains ingredients or instructions
+  const step = recipe.value.steps[stepIndex]
+  const ingredient = recipe.value.ingredients[stepIndex]
+  return ingredient?.name || ingredient?.amount || ingredient?.image || step
 }
 
 // Go to previous step
@@ -199,13 +185,11 @@ const finishCooking = async () => {
   const finishedRecipe = {
     menu_id: recipe.value.id,
     title: recipe.value.title,
-    image_url: recipe.value.image_url, // Ensure this matches your image field
+    image_url: recipe.value.image_url,
   }
 
   try {
-    const { error } = await supabase
-      .from('finishdishes')
-      .insert(finishedRecipe)
+    const { error } = await supabase.from('finishdishes').insert(finishedRecipe)
 
     if (error) {
       console.error('Error inserting into finishdishes:', error)
@@ -219,8 +203,6 @@ const finishCooking = async () => {
     console.error('Unexpected error:', error)
   }
 }
-
-
 
 watch(currentStep, (newStep) => {
   console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`)
@@ -261,6 +243,7 @@ h1 {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
 }
+
 .ingredient-display {
   background-color: #f5f5f5;
   border-radius: 8px;
