@@ -9,7 +9,7 @@
             </v-col>
             <v-col v-for="(recipe, index) in finishedRecipes" :key="index" cols="12" sm="6" md="4">
               <v-card class="menu-card">
-                <v-img :src="recipe.image" height="200px"></v-img>
+                <v-img :src="recipe.image_url" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
                   <v-btn style="background-color: #8d6e63; color: #fff;" @click="confirmDelete(index)">Remove</v-btn>
@@ -42,11 +42,26 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { supabase } from '@/utils/supabase';
 
 const router = useRouter();
 const route = useRoute();
 const finishedRecipes = ref([]);
 const currentRecipe = ref(null);
+
+
+const fetchFinishedRecipes = async () => {
+  const { data, error } = await supabase.from('finishdishes').select('*')
+  if (error) {
+    console.error('Error fetching finished recipes:', error)
+  } else {
+    finishedRecipes.value = data
+  }
+}
+
+onMounted(() => {
+  fetchFinishedRecipes()
+})
 
 // Load all finished recipes
 const loadFinishedRecipes = () => {
@@ -66,11 +81,33 @@ const confirmDelete = (index) => {
   }
 }
 
-// Remove recipe from finishedRecipes
-const removeFinishedRecipe = (index) => {
-  finishedRecipes.value.splice(index, 1);
-  localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value));
+
+// Remove recipe from finishedRecipes and Supabase
+const removeFinishedRecipe = async (index) => {
+  const recipeToRemove = finishedRecipes.value[index];
+
+  try {
+    // Delete from Supabase by `menu_id` or any unique identifier
+    const { error } = await supabase
+      .from('finishdishes')
+      .delete()
+      .eq('menu_id', recipeToRemove.menu_id); // Ensure you're using the correct field
+
+    if (error) {
+      console.error('Error deleting recipe from Supabase:', error);
+      alert('Failed to delete the recipe. Please try again.');
+    } else {
+      // Remove from the local array
+      finishedRecipes.value.splice(index, 1);
+      localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value));
+      alert('Recipe successfully deleted!');
+    }
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    alert('An unexpected error occurred.');
+  }
 }
+
 
 // Load finished recipes when component is mounted
 onMounted(() => {
