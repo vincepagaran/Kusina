@@ -75,7 +75,6 @@
                 </v-card-text>
 
                 <div v-if="currentStep < totalSteps - 1">
-
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
                   <v-btn @click="skipStep">Next</v-btn>
                 </div>
