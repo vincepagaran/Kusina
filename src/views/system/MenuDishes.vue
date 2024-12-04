@@ -23,9 +23,8 @@
                     :loading="loading"
                     :disabled="loading"
                     @click="confirmDelete(recipe.id, index)"
+                    >Delete</v-btn
                   >
-                    Delete
-                  </v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -46,25 +45,37 @@
               </v-card-title>
 
               <v-card-text>
-                <div v-if="currentIngredient.name || currentIngredient.amount || currentIngredient.image">
-                  <v-sheet class="ingredient-display" elevation="2">
-                    <v-row align="center">
-                      <v-col cols="4">
-                        <v-img
-                          :src="currentIngredient.image"
-                          alt="Ingredient Image"
-                          class="ingredient-image"
-                          contain
-                        ></v-img>
-                      </v-col>
-                      <v-col cols="8">
-                        <h4 class="ingredient-name">{{ currentIngredient.name }}</h4>
-                        <p class="ingredient-amount">{{ currentIngredient.amount }}</p>
-                      </v-col>
-                    </v-row>
-                  </v-sheet>
-                </div>
+                <h3 v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
+                  <strong style="color: #4caf50; font-weight: bold">
+                    {{ currentStep < totalSteps - 1 ? 'Ingredients:' : 'Well Done!' }}
+                  </strong>
+                </h3>
 
+                <!-- Ingredient display section -->
+                <v-sheet
+                  class="ingredient-display"
+                  elevation="2"
+                  v-if="
+                    currentIngredient.name || currentIngredient.amount || currentIngredient.image
+                  "
+                >
+                  <v-row align="center">
+                    <v-col cols="4">
+                      <v-img
+                        :src="currentIngredient.image"
+                        alt="Ingredient Image"
+                        class="ingredient-image"
+                        contain
+                      ></v-img>
+                    </v-col>
+                    <v-col cols="8">
+                      <h4 class="ingredient-name">{{ currentIngredient.name }}</h4>
+                      <p class="ingredient-amount">{{ currentIngredient.amount }}</p>
+                    </v-col>
+                  </v-row>
+                </v-sheet>
+
+                <!-- Instructions display section -->
                 <h3 v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
                   <strong style="color: #4caf50; font-weight: bold">Instructions:</strong>
                 </h3>
@@ -78,9 +89,10 @@
                   <v-btn @click="skipStep">Next</v-btn>
                 </div>
                 <div v-else>
-                  <v-btn style="background-color: #8d6e63; color: #fff" @click="finishCooking">
-                    Finish
-                  </v-btn>
+                  <!-- "Well Done!" message -->
+                  <v-btn style="background-color: #8d6e63; color: #fff" @click="finishCooking"
+                    >Finish</v-btn
+                  >
                 </div>
               </v-card-text>
             </v-card>
@@ -97,15 +109,39 @@ import router from '@/router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import { supabase } from '@/utils/supabase'
 
-const menuItems = ref([]) 
-const loading = ref(false)
-const dialog = ref(false)
-const currentStep = ref(0)
-const recipe = ref(null)
+// Menu items state
+const menuItems = ref([])
+const loading = ref(false);
+
+const confirmDelete = async (id, index) => {
+  if (confirm("Are you sure you want to delete this recipe?")) {
+    try {
+      loading.value = true;
+      // Delete from Supabase
+      const { error } = await supabase.from("menus").delete().eq("id", id);
+
+      if (error) {
+        console.error("Error deleting recipe from Supabase:", error);
+        alert("Failed to delete the recipe.");
+      } else {
+        // Remove from local state
+        menuItems.value.splice(index, 1);
+        alert("Recipe successfully deleted!");
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    } finally {
+      loading.value = false;
+    }
+  }
+};
 
 const fetchMenuItems = async () => {
   try {
-    const { data, error } = await supabase.from('menus').select('id, title, ingredients, instructions, image_url')
+    const { data, error } = await supabase
+      .from('menus')
+      .select('id, title, ingredients, instructions, image_url')
+
     if (error) {
       console.error('Error fetching menu items:', error)
     } else {
@@ -120,7 +156,11 @@ onMounted(() => {
   fetchMenuItems()
 })
 
-// Cooking steps and ingredients logic
+// State for cooking procedure
+const dialog = ref(false)
+const currentStep = ref(0)
+const recipe = ref(null)
+
 const currentIngredient = computed(() => {
   if (currentStep.value < recipe.value?.ingredients?.length) {
     const ingredient = recipe.value.ingredients[currentStep.value]
@@ -138,46 +178,49 @@ const totalSteps = computed(() => {
   return ingredientSteps + cookingSteps
 })
 
+// Start cooking and prepare instructions
 const startCooking = (selectedRecipe) => {
   recipe.value = selectedRecipe
-  recipe.value.steps = recipe.value.instructions
-    .split(/(\.|\r|\n)+/) // Split by periods, line breaks, or carriage returns
-    .map(step => step.trim()) // Remove extra spaces
-    .filter(step => step.length > 0) // Filter out empty steps
+  recipe.value.steps = recipe.value.instructions.split('\n')
   dialog.value = true
   currentStep.value = 0
 }
 
 const skipStep = () => {
   if (currentStep.value < totalSteps.value - 1) {
+    // Skip empty steps that do not have instructions or ingredients
     while (currentStep.value < totalSteps.value - 1 && !hasContentForStep(currentStep.value + 1)) {
       currentStep.value++
     }
-    currentStep.value++
+    currentStep.value++ // Move to the next step (non-empty)
   }
 }
 
 const hasContentForStep = (stepIndex) => {
+  // Check if the step contains ingredients or instructions
   const step = recipe.value.steps[stepIndex]
   const ingredient = recipe.value.ingredients[stepIndex]
   return ingredient?.name || ingredient?.amount || ingredient?.image || step
 }
 
+// Go to previous step
 const previousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
   }
 }
 
+// Finish cooking process
 const finishCooking = async () => {
   const finishedRecipe = {
     menu_id: recipe.value.id,
     title: recipe.value.title,
     image_url: recipe.value.image_url,
   }
-  
+
   try {
     const { error } = await supabase.from('finishdishes').insert(finishedRecipe)
+
     if (error) {
       console.error('Error inserting into finishdishes:', error)
       alert('Failed to mark the dish as finished.')
