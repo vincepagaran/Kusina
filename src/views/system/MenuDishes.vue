@@ -6,7 +6,7 @@
           <!-- Recipe List -->
           <v-row v-if="menuItems.length > 0">
             <v-col cols="12">
-              <h1 style="color: #e2dfd0">Recipe List:</h1>
+              <h1 style="color: black">Recipe List:</h1>
             </v-col>
             <v-col v-for="(recipe, index) in menuItems" :key="recipe.id" cols="12" sm="6" md="4">
               <v-card class="menu-card">
