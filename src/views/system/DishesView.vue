@@ -73,7 +73,7 @@ const viewDetails = async (recipeId) => {
             image: `https://www.themealdb.com/images/ingredients/${ingredientName}.png`,
           };
         }),
-      instructions: recipeDetails.strInstructions.split('\n'), // Split instructions into an array by line breaks
+      instructions: recipeDetails.strInstructions,
     };
 
     dialog.value = true; // Open the dialog
@@ -84,13 +84,40 @@ const viewDetails = async (recipeId) => {
   }
 };
 
-// Add to Menu
-const addToMenu = (recipe) => {
-  const savedMenuItems = JSON.parse(localStorage.getItem('menuItems')) || []
-  savedMenuItems.push(recipe)
-  localStorage.setItem('menuItems', JSON.stringify(savedMenuItems))
-  router.push({ name: 'menu' })
+const addToMenu = async (recipe) => {
+  const { data: currentUser, error: userError } = await supabase.auth.getUser()
+  if (userError || !currentUser) {
+    console.error('Error fetching user:', userError.message)
+    return
+  }
+
+  try {
+    // Store the recipe in Supabase
+  const { error } = await supabase
+  .from('menus')
+  .insert([
+    {
+      users_id: currentUser.user.id,  // Ensure this matches the authenticated user
+      id: recipe.id,
+      title: recipe.title,
+      image_url: recipe.image,
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions
+    }
+  ])
+
+
+    if (error) {
+      console.error('Error adding recipe to menu:', error.message)
+    } else {
+      // Optionally navigate to the menu page
+      router.push({ name: 'menu' })
+    }
+  } catch (error) {
+    console.error('Error adding recipe to menu:', error.message)
+  }
 }
+
 
 // Function to close the dialog
 const closeDialog = () => {

@@ -3,17 +3,28 @@
     <AppLayout>
       <v-main style="min-height: 100vh">
         <v-container>
+          <!-- Recipe List -->
           <v-row v-if="menuItems.length > 0">
             <v-col cols="12">
               <h1 style="color: #e2dfd0">Recipe List:</h1>
             </v-col>
-            <v-col v-for="(recipe, index) in menuItems" :key="index" cols="12" sm="6" md="4">
+            <v-col v-for="(recipe, index) in menuItems" :key="recipe.id" cols="12" sm="6" md="4">
               <v-card class="menu-card">
-                <v-img :src="recipe.image" height="200px"></v-img>
+                <v-img :src="recipe.image_url" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
                 <v-card-actions>
-                 <v-btn style="background-color: #8d6e63; color: #e2dfd0;" @click="startCooking(recipe)">Start Cooking</v-btn>
-                  <v-btn style="background-color: #8d6e63; color: #fff;" @click="confirmDelete(index)">Delete</v-btn>
+                  <v-btn
+                    style="background-color: #8d6e63; color: #e2dfd0"
+                    @click="startCooking(recipe)"
+                    >Start Cooking</v-btn
+                  >
+                  <v-btn
+                    style="background-color: #8d6e63; color: #fff"
+                    :loading="loading"
+                    :disabled="loading"
+                    @click="confirmDelete(recipe.id,index)"
+                    >Delete</v-btn
+                  >
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -62,9 +73,8 @@
                   <h3><strong style="color: #4caf50; font-weight: bold">Instructions:</strong></h3>
                   <div v-html="recipe.instructions"></div>
                 </v-card-text>
-                
+
                 <div v-if="currentStep < totalSteps - 1">
-                
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
                   <v-btn @click="skipStep">Next</v-btn>
                 </div>
@@ -82,12 +92,33 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import router from '@/router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { supabase } from '@/utils/supabase'
 
 // Menu items state
 const menuItems = ref([])
+
+const fetchMenuItems = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('menus')
+      .select('id, title, ingredients, instructions, image_url') // Include ingredients_image here
+
+    if (error) {
+      console.error('Error fetching menu items:', error)
+    } else {
+      menuItems.value = data
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
+}
+
+onMounted(() => {
+  fetchMenuItems()
+})
 
 // Retrieve the menu items from localStorage (if any)
 const savedMenuItems = JSON.parse(localStorage.getItem('menuItems'))
@@ -102,12 +133,14 @@ const recipe = ref(null)
 
 const currentIngredient = computed(() => {
   if (currentStep.value < recipe.value?.ingredients?.length) {
-    return recipe.value.ingredients[currentStep.value]
+    const ingredient = recipe.value.ingredients[currentStep.value]
+    return {
+      ...ingredient,
+      image: ingredient.image || ingredient.ingredients_image, // Use ingredients_image if image is missing
+    }
   }
   return ''
 })
-
-
 
 const totalSteps = computed(() => {
   const ingredientSteps = recipe.value?.ingredients?.length || 0
@@ -116,16 +149,27 @@ const totalSteps = computed(() => {
 })
 
 // Remove dish from the menu
-const removeFromMenu = (index) => {
-  menuItems.value.splice(index, 1)
-  localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
+const removeFromMenu = async (recipeId, index) => {
+  try {
+    const { error } = await supabase.from('menus').delete().eq('id', recipeId)
+
+    if (error) {
+      console.error('Error deleting recipe from Supabase:', error)
+      alert('Failed to delete the recipe. Please try again.')
+    } else {
+      menuItems.value.splice(index, 1)
+      localStorage.setItem('menuItems', JSON.stringify(menuItems.value))
+      alert('Recipe successfully deleted!')
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
 }
 
 // Confirm deletion of the dish
-const confirmDelete = (index) => {
-  const isConfirmed = confirm("Are you sure you want to delete this dish?")
-  if (isConfirmed) {
-    removeFromMenu(index)
+const confirmDelete = (recipeId, index) => {
+  if (confirm('Are you sure you want to delete this dish?')) {
+    removeFromMenu(recipeId, index)
   }
 }
 
@@ -161,7 +205,7 @@ const finishCooking = () => {
     image: recipe.value.image,
     ingredients: recipe.value.ingredients,
     steps: recipe.value.steps,
-    instructions: recipe.value.instructions
+    instructions: recipe.value.instructions,
   }
 
   // Check if the recipe is already in the list before adding
