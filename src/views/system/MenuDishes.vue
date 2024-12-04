@@ -195,28 +195,32 @@ const previousStep = () => {
 }
 
 // Finish cooking process
-const finishCooking = () => {
-  const finishedRecipes = JSON.parse(localStorage.getItem('finishedRecipes')) || []
-
-  // Ensure the recipe has a unique ID
+const finishCooking = async () => {
   const finishedRecipe = {
-    id: recipe.value.id || `${recipe.value.title}-${Date.now()}`,
+    menu_id: recipe.value.id,
     title: recipe.value.title,
-    image: recipe.value.image,
-    ingredients: recipe.value.ingredients,
-    steps: recipe.value.steps,
-    instructions: recipe.value.instructions,
+    image_url: recipe.value.image_url, // Ensure this matches your image field
   }
 
-  // Check if the recipe is already in the list before adding
-  if (!finishedRecipes.some((r) => r.id === finishedRecipe.id)) {
-    finishedRecipes.push(finishedRecipe)
-    localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes))
-  }
+  try {
+    const { error } = await supabase
+      .from('finishdishes')
+      .insert(finishedRecipe)
 
-  dialog.value = false
-  router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.id } })
+    if (error) {
+      console.error('Error inserting into finishdishes:', error)
+      alert('Failed to mark the dish as finished.')
+    } else {
+      alert('Dish successfully marked as finished!')
+      dialog.value = false
+      router.push({ name: 'finishdishes', params: { recipeId: finishedRecipe.menu_id } })
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
 }
+
+
 
 watch(currentStep, (newStep) => {
   console.log(`Current Step: ${newStep}, Total Steps: ${totalSteps.value}`)
