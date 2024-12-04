@@ -34,10 +34,16 @@
           <v-dialog v-model="dialog" max-width="600px">
             <v-card>
               <v-card-title>
-                <h2 v-if="currentStep < totalSteps - 1">Step {{ currentStep + 1 }}</h2>
-                <h2 v-else>Well Done!</h2>
-                <!-- Updated Step Display -->
+                <div class="d-flex justify-space-between align-center" style="width: 100%">
+                  <h2 v-if="currentStep < totalSteps - 1">Step {{ currentStep + 1 }}</h2>
+                  <h2 v-else>Well Done!</h2>
+                  <!-- Close Button (X) -->
+                  <v-btn icon @click="dialog = false" aria-label="Close">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </div>
               </v-card-title>
+
               <v-card-text>
                 <h3 v-if="currentStep < recipe.steps.length && recipe.steps[currentStep]">
                   <strong style="color: #4caf50; font-weight: bold">
