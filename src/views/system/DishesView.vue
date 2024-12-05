@@ -7,6 +7,14 @@ import AppLayout from '@/components/layout/AppLayout.vue'
 
 const router = useRouter()
 const user = ref(null)
+const selectedCategory = ref('All');
+const categories = [
+  { name: 'All', icon: 'mdi-earth' },
+  { name: 'Breakfast', icon: 'mdi-silverware-fork' },
+  { name: 'Dessert', icon: 'mdi-cupcake' },
+  { name: 'Vegetarian', icon: 'mdi-leaf' },
+  { name: 'Seafood', icon: 'mdi-fish' },
+]
 
 // State variables
 const recipes = ref([]) // Stores the fetched recipes
@@ -85,6 +93,7 @@ const viewDetails = async (recipeId) => {
 }
 
 const fetchCategoryRecipes = async (category) => {
+  selectedCategory.value = category; // Set the active category
   loading.value = true
   try {
     if (category === 'All') {
@@ -182,12 +191,17 @@ watch(searchQuery, (newQuery) => {
 
           <v-row justify="center" class="mb-3">
             <v-btn
-              v-for="category in ['All', 'Breakfast', 'Dessert', 'Vegetarian', 'Seafood']"
-              :key="category"
+              v-for="category in categories"
+              :key="category.name"
               class="category-btn"
-              @click="fetchCategoryRecipes(category)"
+              :style="{
+                backgroundColor: selectedCategory === category.name ? '#4caf50' : '#8d6e63',
+                color: '#ffffff',
+              }"
+              @click="fetchCategoryRecipes(category.name)"
             >
-              {{ category }}
+              <v-icon left>{{ category.icon }}</v-icon>
+              {{ category.name }}
             </v-btn>
           </v-row>
 
@@ -285,6 +299,10 @@ body {
 .category-btn:hover {
   background-color: #7b5e4a;
   transform: scale(1.05);
+}
+
+.category-btn:active {
+  background-color: #9dce9f; /* Active state when clicked */
 }
 
 /* Search Bar Styling */
