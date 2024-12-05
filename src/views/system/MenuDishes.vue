@@ -57,9 +57,20 @@
                 <div v-if="currentStep < totalSteps - 1">
                   <!-- Ingredients Section -->
                   <div v-if="currentIngredientHasContent">
-                    <h3>
-                      <strong style="color: #4caf50; font-weight: bold">Ingredients:</strong>
-                    </h3>
+                    <!-- Step Number Display Above Ingredients -->
+                    <v-row class="d-flex" justify="space-between" align="center">
+                      <v-col class="d-flex" cols="auto">
+                        <h2 style="color: black; font-weight: bold">Step {{ currentStep + 1 }}</h2>
+                      </v-col>
+                      <v-col class="d-flex justify-end" cols="auto">
+                        <v-btn icon @click="dialog = false">
+                          <v-icon color="red">mdi-close</v-icon>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+
+                    <h4 style="color: black">Ingredients:</h4>
+
                     <v-sheet
                       class="ingredient-display"
                       elevation="2"
@@ -88,13 +99,25 @@
 
                   <!-- Instructions Section -->
                   <h3 v-if="currentStepHasContent && !currentIngredientHasContent">
-                    <strong style="color: #4caf50; font-weight: bold">Instructions:</strong>
+                    <strong style="color: black; font-weight: bold">Instructions:</strong>
                   </h3>
                   <p>{{ recipe.steps[currentStep] }}</p>
 
                   <!-- Navigation Buttons -->
-                  <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
-                  <v-btn @click="skipStep">Next</v-btn>
+                  <br />
+                  <v-row class="d-flex" justify="space-between" align="center">
+                    <v-btn
+                      @click="previousStep"
+                      :disabled="currentStep === 0"
+                      style="background-color: #8d6e63; color: #fff"
+                    >
+                      Previous
+                    </v-btn>
+
+                    <v-btn @click="skipStep" style="background-color: #8d6e63; color: #fff">
+                      Next
+                    </v-btn>
+                  </v-row>
                 </div>
 
                 <!-- Finish Step Section -->
