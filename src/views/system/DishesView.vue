@@ -52,12 +52,12 @@ const searchRecipes = async () => {
 // View recipe details
 const viewDetails = async (recipeId) => {
   try {
-    loading.value = true;
+    loading.value = true
     const response = await axios.get('https://www.themealdb.com/api/json/v1/1/lookup.php', {
       params: { i: recipeId }, // Fetch recipe details by ID
-    });
+    })
 
-    const recipeDetails = response.data.meals[0];
+    const recipeDetails = response.data.meals[0]
     selectedRecipe.value = {
       id: recipeDetails.idMeal,
       title: recipeDetails.strMeal,
@@ -66,23 +66,44 @@ const viewDetails = async (recipeId) => {
       ingredients: Object.keys(recipeDetails)
         .filter((key) => key.startsWith('strIngredient') && recipeDetails[key])
         .map((key, index) => {
-          const ingredientName = recipeDetails[key];
+          const ingredientName = recipeDetails[key]
           return {
             name: ingredientName,
             amount: recipeDetails[`strMeasure${index + 1}`],
             image: `https://www.themealdb.com/images/ingredients/${ingredientName}.png`,
-          };
+          }
         }),
-       instructions: recipeDetails.strInstructions.split('\n')
-    };
+      instructions: recipeDetails.strInstructions.split('\n'),
+    }
 
-    dialog.value = true; // Open the dialog
+    dialog.value = true // Open the dialog
   } catch (error) {
-    console.error('Error fetching recipe details:', error);
+    console.error('Error fetching recipe details:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
+
+const fetchCategoryRecipes = async (category) => {
+  loading.value = true
+  try {
+    if (category === 'All') {
+      // Fetch a random set of recipes (or clear the current filters)
+      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/search.php?s=')
+      recipes.value = response.data.meals || []
+    } else {
+      // Fetch recipes by the selected category
+      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/filter.php', {
+        params: { c: category },
+      })
+      recipes.value = response.data.meals || []
+    }
+  } catch (error) {
+    console.error('Error fetching recipes by category:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 const addToMenu = async (recipe) => {
   const { data: currentUser, error: userError } = await supabase.auth.getUser()
@@ -93,18 +114,16 @@ const addToMenu = async (recipe) => {
 
   try {
     // Store the recipe in Supabase
-    const { error } = await supabase
-      .from('menus')
-      .insert([
-        {
-          users_id: currentUser.user.id,  // Ensure this matches the authenticated user
-          id: recipe.id,
-          title: recipe.title,
-          image_url: recipe.image,
-          ingredients: recipe.ingredients,
-          instructions: recipe.instructions
-        }
-      ])
+    const { error } = await supabase.from('menus').insert([
+      {
+        users_id: currentUser.user.id, // Ensure this matches the authenticated user
+        id: recipe.id,
+        title: recipe.title,
+        image_url: recipe.image,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions,
+      },
+    ])
 
     if (error) {
       console.error('Error adding recipe to menu:', error.message)
@@ -118,8 +137,6 @@ const addToMenu = async (recipe) => {
     console.error('Error adding recipe to menu:', error.message)
   }
 }
-
-
 
 // Function to close the dialog
 const closeDialog = () => {
@@ -149,6 +166,7 @@ watch(searchQuery, (newQuery) => {
         <v-container>
           <!-- Title -->
           <h1 class="text-center title-text" style="color: #e2dfd0">What do you want to make?</h1>
+
           <!-- Search Bar -->
           <v-text-field
             v-model="searchQuery"
@@ -161,6 +179,17 @@ watch(searchQuery, (newQuery) => {
             style="margin-bottom: 16px"
             @keyup.enter="searchRecipes"
           ></v-text-field>
+
+          <v-row justify="center" class="mb-3">
+            <v-btn
+              v-for="category in ['All', 'Breakfast', 'Dessert', 'Vegetarian', 'Seafood']"
+              :key="category"
+              class="category-btn"
+              @click="fetchCategoryRecipes(category)"
+            >
+              {{ category }}
+            </v-btn>
+          </v-row>
 
           <v-container>
             <v-row>
@@ -239,6 +268,23 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
   background-color: #f9f9f9;
+}
+
+.category-btn {
+  background-color: #8d6e63;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 30px;
+  text-transform: capitalize;
+  margin: 5px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-btn:hover {
+  background-color: #7b5e4a;
+  transform: scale(1.05);
 }
 
 /* Search Bar Styling */
