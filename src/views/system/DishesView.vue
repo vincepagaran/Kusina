@@ -93,23 +93,24 @@ const addToMenu = async (recipe) => {
 
   try {
     // Store the recipe in Supabase
-  const { error } = await supabase
-  .from('menus')
-  .insert([
-    {
-      users_id: currentUser.user.id,  // Ensure this matches the authenticated user
-      id: recipe.id,
-      title: recipe.title,
-      image_url: recipe.image,
-      ingredients: recipe.ingredients,
-      instructions: recipe.instructions
-    }
-  ])
-
+    const { error } = await supabase
+      .from('menus')
+      .insert([
+        {
+          users_id: currentUser.user.id,  // Ensure this matches the authenticated user
+          id: recipe.id,
+          title: recipe.title,
+          image_url: recipe.image,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions
+        }
+      ])
 
     if (error) {
       console.error('Error adding recipe to menu:', error.message)
     } else {
+      // Show success alert
+      alert('Recipe successfully added to your menu!')
       // Optionally navigate to the menu page
       router.push({ name: 'menu' })
     }
@@ -117,6 +118,7 @@ const addToMenu = async (recipe) => {
     console.error('Error adding recipe to menu:', error.message)
   }
 }
+
 
 
 // Function to close the dialog
