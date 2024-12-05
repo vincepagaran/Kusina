@@ -37,14 +37,12 @@
               </v-card>
             </v-col>
           </v-row>
-           <v-row v-else class="no-dishes-container">
+          <v-row v-else class="no-dishes-container">
             <v-col cols="12" class="d-flex flex-column align-center justify-center text-center">
               <v-card class="no-dishes-card pa-5">
                 <v-icon icon="mdi-food-off" size="60" color="grey"></v-icon>
                 <h2 class="mt-3" style="color: #e2dfd0">No Added Dishes</h2>
-                <p style="color: #bdbdbd">
-                  Start finding Dishes and Start your Cooking Adventure!
-                </p>
+                <p style="color: #bdbdbd">Start finding Dishes and Start your Cooking Adventure!</p>
                 <v-btn color="brown-lighten-1" class="mt-3" @click="router.push('/dishes')">
                   Find Dishes
                 </v-btn>
@@ -55,57 +53,53 @@
           <!-- Cooking Procedure Modal -->
           <v-dialog v-model="dialog" max-width="600px">
             <v-card>
-              <v-card-title>
-                <div class="d-flex justify-space-between align-center" style="width: 100%">
-                  <h2 v-if="currentStep < totalSteps - 1">Step {{ currentStep + 1 }}</h2>
-                  <h2 v-else>Well Done!</h2>
-                  <!-- Close Button (X) -->
-                  <v-btn icon @click="dialog = false" aria-label="Close">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </div>
-              </v-card-title>
-
               <v-card-text>
-                <h3 v-if="currentStepHasContent">
-                  <strong style="color: #4caf50; font-weight: bold">
-                    {{ currentStep < totalSteps - 1 ? 'Ingredients:' : 'Well Done!' }}
-                  </strong>
-                </h3>
-
-                <!-- Ingredient display section -->
-                <v-sheet
-                  class="ingredient-display"
-                  elevation="2"
-                  v-if="currentIngredientHasContent"
-                >
-                  <v-row align="center">
-                    <v-col cols="4">
-                      <v-img
-                        :src="currentIngredient.image"
-                        alt="Ingredient Image"
-                        class="ingredient-image"
-                        contain
-                      ></v-img>
-                    </v-col>
-                    <v-col cols="8">
-                      <h4 class="ingredient-name">{{ currentIngredient.name }}</h4>
-                      <p class="ingredient-amount">{{ currentIngredient.amount }}</p>
-                    </v-col>
-                  </v-row>
-                </v-sheet>
-
-                <!-- Instructions display section -->
-                <div v-if="currentStepHasContent">
-                  <p>{{ recipe.steps[currentStep] }}</p>
-                </div>
-
-                <!-- Buttons -->
                 <div v-if="currentStep < totalSteps - 1">
+                  <!-- Ingredients Section -->
+                  <div v-if="currentIngredientHasContent">
+                    <h3>
+                      <strong style="color: #4caf50; font-weight: bold">Ingredients:</strong>
+                    </h3>
+                    <v-sheet
+                      class="ingredient-display"
+                      elevation="2"
+                      v-if="currentIngredientHasContent"
+                    >
+                      <v-row align="center">
+                        <v-col cols="4" v-if="currentIngredient.image">
+                          <v-img
+                            :src="currentIngredient.image"
+                            alt="Ingredient Image"
+                            class="ingredient-image"
+                            contain
+                          ></v-img>
+                        </v-col>
+                        <v-col cols="8">
+                          <h4 v-if="currentIngredient.name" class="ingredient-name">
+                            {{ currentIngredient.name }}
+                          </h4>
+                          <p v-if="currentIngredient.amount" class="ingredient-amount">
+                            {{ currentIngredient.amount }}
+                          </p>
+                        </v-col>
+                      </v-row>
+                    </v-sheet>
+                  </div>
+
+                  <!-- Instructions Section -->
+                  <h3 v-if="currentStepHasContent && !currentIngredientHasContent">
+                    <strong style="color: #4caf50; font-weight: bold">Instructions:</strong>
+                  </h3>
+                  <p>{{ recipe.steps[currentStep] }}</p>
+
+                  <!-- Navigation Buttons -->
                   <v-btn @click="previousStep" :disabled="currentStep === 0">Previous</v-btn>
                   <v-btn @click="skipStep">Next</v-btn>
                 </div>
+
+                <!-- Finish Step Section -->
                 <div v-else>
+                  <h3>Well Done!</h3>
                   <v-btn style="background-color: #8d6e63; color: #fff" @click="finishCooking">
                     Finish
                   </v-btn>
@@ -219,8 +213,8 @@ const totalSteps = computed(() => {
 
 const currentIngredientHasContent = computed(() => {
   return (
-    currentIngredient.value?.name ||
-    currentIngredient.value?.amount ||
+    currentIngredient.value?.name?.trim() ||
+    currentIngredient.value?.amount?.trim() ||
     currentIngredient.value?.image
   )
 })
@@ -228,7 +222,7 @@ const currentIngredientHasContent = computed(() => {
 const currentStepHasContent = computed(() => {
   return (
     currentIngredientHasContent.value ||
-    (recipe.value?.steps[currentStep.value]?.trim() || '').length > 0
+    recipe.value?.steps?.[currentStep.value]?.trim()?.length > 0
   )
 })
 
@@ -360,5 +354,4 @@ h1 {
   text-align: center;
   margin-top: 80px;
 }
-
 </style>
