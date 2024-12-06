@@ -7,7 +7,6 @@ import ProfileHeader from './ProfileHeader.vue'
 const router = useRouter()
 const user = ref(false)
 const isLoggedIn = ref(false)
-const isDropdownOpen = ref(false)
 const drawer = ref(JSON.parse(localStorage.getItem('drawerState')) || false)
 
 // Fetch user on mount
@@ -22,10 +21,6 @@ onMounted(async () => {
     user.value = currentUser.user
   }
 })
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
 
 const getLoggedStatus = async () => {
   isLoggedIn.value = await isAuthenticated()
@@ -99,36 +94,7 @@ onMounted(() => {
             style="background-color: #a59d84; border-radius: 4px"
             @click="router.push('/dishes')"
           >
-            <template v-slot:append>
-              <v-btn icon variant="text" @click.stop="toggleDropdown">
-                <v-icon>{{ isDropdownOpen ? 'mdi-menu-up' : 'mdi-menu-down' }}</v-icon>
-              </v-btn>
-            </template>
           </v-list-item>
-
-          <!-- Dropdown Menu -->
-          <v-list v-if="isDropdownOpen" dense class="ml-6 dropdown-menu">
-            <v-list-item
-              prepend-icon="mdi-silverware-variant"
-              title="Breakfast"
-              @click="router.push('/breakfast')"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-cupcake"
-              title="Dessert"
-              @click="router.push('/dessert')"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-leaf"
-              title="Vegetarian"
-              @click="router.push('/vegetarian')"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-fish"
-              title="Seafood"
-              @click="router.push('/seafood')"
-            ></v-list-item>
-          </v-list>
         </v-list>
       </v-navigation-drawer>
 
@@ -185,16 +151,5 @@ onMounted(() => {
 
 .v-navigation-drawer::-webkit-scrollbar-track {
   background: transparent;
-}
-.dropdown-menu .v-list-item {
-  border-radius: 10px; /* Subtle rounded corners for each item */
-  margin: 4px 0; /* Space between items */
-  transition: background-color 0.3s ease;
-  color: #e0e0e0;
-}
-.dropdown-menu .v-list-item:hover {
-  background-color: #a59d84; /* Highlight color on hover */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
 }
 </style>
