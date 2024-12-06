@@ -87,7 +87,7 @@ const removeFinishedRecipe = async (index) => {
   const recipeToRemove = finishedRecipes.value[index];
 
   try {
-    // Delete from Supabase by `menu_id` or any unique identifier
+    // Delete from Supabase by menu_id or any unique identifier
     const { error } = await supabase
       .from('finishdishes')
       .delete()
