@@ -14,7 +14,7 @@
                 prepend-icon="mdi-plus"
                 style="color: #fff; background-color: #8d6e63"
               >
-                Add Recipe
+                Add Dish
               </v-btn>
             </v-col>
           </v-row>

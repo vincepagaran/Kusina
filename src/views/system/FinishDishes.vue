@@ -29,6 +29,27 @@
               <v-card class="menu-card">
                 <v-img :src="recipe.image_url" height="200px"></v-img>
                 <v-card-title>{{ recipe.title }}</v-card-title>
+                <v-card-text>
+                  <!-- Display Feedback -->
+                  <div v-if="recipe.feedback">
+                    <p><strong>Rating:</strong></p>
+                    <div class="rating-container">
+                      <span
+                        v-for="star in recipe.feedback?.rating || 0"
+                        :key="star"
+                        class="star filled"
+                      >
+                        ★
+                      </span>
+                    </div>
+
+                    <p><strong>Comment:</strong> {{ recipe.feedback.comment }}</p>
+                  </div>
+
+                  <div v-else>
+                    <p>No feedback provided yet.</p>
+                  </div>
+                </v-card-text>
                 <v-card-actions>
                   <v-btn
                     style="background-color: #8d6e63; color: #fff"
@@ -107,18 +128,23 @@ const currentRecipe = ref(null)
 const feedbackDialog = ref(false)
 const currentFeedback = ref({ recipeId: null, rating: 0, comment: '' })
 
+onMounted(() => {
+  fetchFinishedRecipes()
+})
+
+// Add this logic to fetch feedback for each recipe
 const fetchFinishedRecipes = async () => {
   const { data, error } = await supabase.from('finishdishes').select('*')
   if (error) {
     console.error('Error fetching finished recipes:', error)
   } else {
     finishedRecipes.value = data
+    // Fetch feedback for each recipe
+    for (const recipe of finishedRecipes.value) {
+      await fetchFeedback(recipe.menu_id)
+    }
   }
 }
-
-onMounted(() => {
-  fetchFinishedRecipes()
-})
 
 // Load all finished recipes
 const loadFinishedRecipes = () => {
@@ -143,21 +169,34 @@ const removeFinishedRecipe = async (index) => {
   const recipeToRemove = finishedRecipes.value[index]
 
   try {
-    // Delete from Supabase by menu_id or any unique identifier
-    const { error } = await supabase
+    // Start a transaction-like process for deleting both the recipe and its feedback
+    const { error: recipeError } = await supabase
       .from('finishdishes')
       .delete()
-      .eq('menu_id', recipeToRemove.menu_id) // Ensure you're using the correct field
+      .eq('menu_id', recipeToRemove.menu_id)
 
-    if (error) {
-      console.error('Error deleting recipe from Supabase:', error)
+    if (recipeError) {
+      console.error('Error deleting recipe from Supabase:', recipeError)
       alert('Failed to delete the recipe. Please try again.')
-    } else {
-      // Remove from the local array
-      finishedRecipes.value.splice(index, 1)
-      localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value))
-      alert('Recipe successfully deleted!')
+      return
     }
+
+    // Delete associated feedback from the feedback table
+    const { error: feedbackError } = await supabase
+      .from('feedback')
+      .delete()
+      .eq('menu_id', recipeToRemove.menu_id)
+
+    if (feedbackError) {
+      console.error('Error deleting feedback from Supabase:', feedbackError)
+      alert('Failed to delete the feedback. Please try again.')
+      return
+    }
+
+    // Remove the recipe from the local array
+    finishedRecipes.value.splice(index, 1)
+    localStorage.setItem('finishedRecipes', JSON.stringify(finishedRecipes.value))
+    alert('Recipe and associated feedback successfully deleted!')
   } catch (err) {
     console.error('Unexpected error:', err)
     alert('An unexpected error occurred.')
@@ -188,11 +227,46 @@ const submitFeedback = async () => {
       alert('Failed to submit feedback. Please try again.')
     } else {
       alert('Feedback submitted successfully!')
+      // Fetch the updated feedback
+      await fetchFeedback(currentFeedback.value.recipeId)
       closeFeedbackDialog()
     }
   } catch (err) {
     console.error('Unexpected error:', err)
     alert('An unexpected error occurred.')
+  }
+}
+
+const fetchFeedback = async (recipeId) => {
+  try {
+    const { data, error } = await supabase
+      .from('feedback')
+      .select('rating, comment')
+      .eq('menu_id', recipeId)
+
+    if (error) {
+      console.error('Error fetching feedback:', error)
+      return
+    }
+
+    if (data && data.length > 0) {
+      const feedback = data[0]
+      feedback.rating = parseFloat(feedback.rating) || 0 // Ensure rating is a number
+      console.log(`Recipe ID: ${recipeId}, Feedback:`, feedback) // Debugging
+
+      const index = finishedRecipes.value.findIndex((r) => r.menu_id === recipeId)
+      if (index !== -1) {
+        finishedRecipes.value[index] = {
+          ...finishedRecipes.value[index],
+          feedback,
+        }
+        console.log(`Updated Recipe:`, finishedRecipes.value[index]) // Debugging
+      }
+    } else {
+      console.warn(`No feedback found for Recipe ID: ${recipeId}`)
+    }
+  } catch (err) {
+    console.error('Unexpected error fetching feedback:', err)
   }
 }
 
@@ -231,6 +305,21 @@ h1 {
 .menu-card:hover {
   transform: scale(1.05);
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.rating-container {
+  display: flex;
+  align-items: center;
+}
+
+.star {
+  font-size: 20px;
+  color: #ddd; /* Default unfilled color */
+  margin-right: 2px;
+}
+
+.star.filled {
+  color: #ffc107; /* Filled color */
 }
 
 v-rating {
