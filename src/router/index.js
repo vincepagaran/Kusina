@@ -7,11 +7,7 @@ import DishesView from '@/views/system/DishesView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import MenuDishes from '@/views/system/MenuDishes.vue'
 import AccountSettings from '@/components/system/AccountSettings.vue'
-import BreakfastView from '@/components/categories/BreakfastView.vue'
 import FinishDishes from '@/views/system/FinishDishes.vue'
-import DessertView from '@/components/categories/DessertView.vue'
-import VegetarianView from '@/components/categories/VegetarianView.vue'
-import SeafoodView from '@/components/categories/SeafoodView.vue'
 
 // import { useAuthUserStore } from '@/stores/authUser'
 
@@ -53,26 +49,6 @@ const router = createRouter({
       path: '/finishdishes',
       name: 'finishdishes',
       component: FinishDishes,
-    },
-    {
-      path: '/breakfast',
-      name: 'breakfast',
-      component: BreakfastView, // Add route for BreakfastView
-    },
-    {
-      path: '/dessert',
-      name: 'dessert',
-      component: DessertView, // Add route for DessertView
-    },
-    {
-      path: '/vegetarian',
-      name: 'vegetarian',
-      component: VegetarianView, // Add route for VegetarianView
-    },
-    {
-      path: '/seafood',
-      name: 'seafood',
-      component: SeafoodView, // Add route for SeafoodView
     },
     {
       path: '/account/settings',
