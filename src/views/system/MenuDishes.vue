@@ -2,12 +2,26 @@
   <v-app>
     <AppLayout>
       <v-main style="min-height: 100vh">
-        <v-container>
-          <!-- Recipe List -->
-          <v-row v-if="menuItems.length > 0">
-            <v-col cols="12">
-              <h1 style="color: #fff">Recipe List:</h1>
+        <v-container
+          style="background-color: transparent; backdrop-filter: blur(20px); color: #f6fcdf"
+        >
+          <v-row class="mb-3">
+            <v-col cols="12" class="d-flex align-center justify-space-between">
+              <h2 style="color: #fff">Menu</h2>
+              <v-btn
+                class="add-menu-btn"
+                @click="router.push('/dishes')"
+                prepend-icon="mdi-plus"
+                style="color: #fff; background-color: #8d6e63"
+              >
+                Add Dish
+              </v-btn>
             </v-col>
+          </v-row>
+
+          <v-divider></v-divider>
+          <!-- Recipe List -->
+          <v-row v-if="menuItems.length > 0" class="mt-3">
             <v-col v-for="(recipe, index) in menuItems" :key="recipe.id" cols="12" sm="6" md="4">
               <v-card class="menu-card">
                 <v-img :src="recipe.image_url" height="200px"></v-img>

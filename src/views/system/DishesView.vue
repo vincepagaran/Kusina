@@ -33,8 +33,33 @@ onMounted(async () => {
     router.replace('/login') // Redirect to login if no user is logged in
   } else {
     user.value = currentUser.user
+    await fetchCategoryRecipes('All') // Automatically fetch "All" recipes on load
   }
 })
+
+// Fetch recipes based on category
+const fetchCategoryRecipes = async (category) => {
+  selectedCategory.value = category; // Set the active category
+  loading.value = true
+  try {
+    if (category === 'All') {
+      // Fetch a random set of recipes (or clear the current filters)
+      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/search.php?s=')
+      recipes.value = response.data.meals || []
+    } else {
+      // Fetch recipes by the selected category
+      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/filter.php', {
+        params: { c: category },
+      })
+      recipes.value = response.data.meals || []
+    }
+  } catch (error) {
+    console.error('Error fetching recipes by category:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // Search recipes based on the query
 const searchRecipes = async () => {
@@ -87,28 +112,6 @@ const viewDetails = async (recipeId) => {
     dialog.value = true // Open the dialog
   } catch (error) {
     console.error('Error fetching recipe details:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const fetchCategoryRecipes = async (category) => {
-  selectedCategory.value = category; // Set the active category
-  loading.value = true
-  try {
-    if (category === 'All') {
-      // Fetch a random set of recipes (or clear the current filters)
-      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/search.php?s=')
-      recipes.value = response.data.meals || []
-    } else {
-      // Fetch recipes by the selected category
-      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/filter.php', {
-        params: { c: category },
-      })
-      recipes.value = response.data.meals || []
-    }
-  } catch (error) {
-    console.error('Error fetching recipes by category:', error)
   } finally {
     loading.value = false
   }
@@ -172,9 +175,13 @@ watch(searchQuery, (newQuery) => {
     <AppLayout>
       <!-- Main Content -->
       <v-main>
-        <v-container>
-          <!-- Title -->
-          <h1 class="text-center title-text" style="color: #e2dfd0">What do you want to make?</h1>
+        <v-container  style="background-color: transparent; backdrop-filter: blur(20px); color: #f6fcdf">
+          <v-row class="mb-1">
+            <v-col cols="12" class="d-flex align-center justify-space-between">
+              <h1 style="color: #fff">Dishes/Categories</h1>
+            </v-col>
+          </v-row>
+          <v-divider></v-divider>
 
           <!-- Search Bar -->
           <v-text-field
@@ -207,9 +214,6 @@ watch(searchQuery, (newQuery) => {
 
           <v-container>
             <v-row>
-              <v-col cols="12">
-                <h1 style="color: #e2dfd0">Result :</h1>
-              </v-col>
               <!-- Loading Spinner -->
               <v-col cols="12" v-if="loading" style="height: 100px">
                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -307,7 +311,7 @@ body {
 
 /* Search Bar Styling */
 .search-bar {
-  margin-top: none;
+  margin-top: 16px;
   width: 100%;
   max-width: 600px;
   margin-left: auto;
